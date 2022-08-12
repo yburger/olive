@@ -7,8 +7,9 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/go-dora/filenamify v0.1.1
 	github.com/go-olive/flv v0.0.0-20220608124255-065f61015270
-	github.com/go-olive/tv v0.3.1-0.20220812040410-9d395d3004fe
+	github.com/go-olive/tv v0.3.1
 	github.com/lthibault/jitterbug/v2 v2.2.2
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.8
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.11.0
@@ -34,7 +35,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.4.1 // indirect

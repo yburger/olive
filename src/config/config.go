@@ -14,6 +14,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	l "github.com/go-olive/olive/src/log"
 	"github.com/go-olive/tv"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -24,7 +25,7 @@ var (
 	defaultAPP = &appConfig{
 		OutTmpl: `[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv`,
 
-		LogLevel:          logrus.DebugLevel,
+		LogLevel:          uint32(logrus.DebugLevel),
 		SnapRestSeconds:   15,
 		SplitRestSeconds:  60,
 		CommanderPoolSize: 1,
@@ -50,7 +51,7 @@ type appConfig struct {
 	SaveDir string
 	OutTmpl string
 
-	LogLevel          logrus.Level
+	LogLevel          uint32
 	SnapRestSeconds   uint
 	SplitRestSeconds  uint
 	CommanderPoolSize uint
@@ -227,6 +228,7 @@ func init() {
 	} else if roomUrl != "" {
 		APP.genShowsFromRoomUrl(roomUrl)
 		APP.verify()
+		APP.autosave()
 	} else {
 		if appCfgFilePath == "" {
 			usage()
@@ -254,7 +256,7 @@ func init() {
 
 func (this *appConfig) verify() {
 	this.checkAndFix()
-	l.Logger.SetLevel(this.LogLevel)
+	l.Logger.SetLevel(logrus.Level(this.LogLevel))
 
 	for _, s := range this.Shows {
 		s.checkAndFix()
@@ -317,4 +319,19 @@ func (this *appConfig) genShowsFromRoomUrl(roomUrl string) {
 			OutTmpl:      "[{{ .StreamerName }}][{{ now | date \"2006-01-02 15-04-05\"}}]",
 		},
 	}
+}
+
+func (this *appConfig) autosave() error {
+	bytes, err := toml.Marshal(this)
+	if err != nil {
+		return err
+	}
+	appTomlFile, err := os.Create(fmt.Sprintf("config-%d.toml", time.Now().Unix()))
+	if err != nil {
+		return err
+	}
+	defer appTomlFile.Close()
+
+	appTomlFile.Write(bytes)
+	return nil
 }
