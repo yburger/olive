@@ -63,7 +63,8 @@ func (s *streamlink) Parse(streamURL string, out string) (err error) {
 	}
 	go func() {
 		<-s.stop
-		s.cmdStdIn.Write([]byte("\x03"))
+		// s.cmdStdIn.Write([]byte("\x03"))
+		s.cmd.Process.Kill()
 	}()
 	return s.cmd.Wait()
 }

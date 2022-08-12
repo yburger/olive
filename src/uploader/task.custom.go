@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-olive/olive/src/config"
 	l "github.com/go-olive/olive/src/log"
+	"github.com/go-olive/olive/src/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,8 +48,7 @@ func (t *Task) move(dest string) error {
 
 	base := filepath.Base(t.Filepath)
 	dest = filepath.Join(dest, base)
-	err := os.Rename(t.Filepath, dest)
-	return err
+	return util.MoveFile(t.Filepath, dest)
 }
 
 func OliveBiliup(t *Task) error {

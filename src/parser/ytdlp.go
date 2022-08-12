@@ -62,7 +62,8 @@ func (p *ytdlp) Parse(streamURL string, out string) (err error) {
 	}
 	go func() {
 		<-p.stop
-		p.cmdStdIn.Write([]byte("\x03"))
+		// p.cmdStdIn.Write([]byte("\x03"))
+		p.cmd.Process.Kill()
 	}()
 	return p.cmd.Wait()
 }
