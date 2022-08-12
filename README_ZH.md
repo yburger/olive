@@ -72,6 +72,8 @@ StreamerName = "old-tomato"
 
 - 直播标题: `{{ .RoomName }}`
 
+- 直播平台: `{{ .SiteName }}`
+
 ```toml
 [[Shows]]
 Platform = "bilibili"
@@ -84,6 +86,8 @@ OutTmpl = "[{{ now | date \"2006-01-02 15-04-05\"}}][{{ .StreamerName }}][{{ .Ro
 ### 定制文件保存位置
 
 新增配置项 `SaveDir`
+
+> 文件名称中的`tmpl变量`，如主播名称、直播平台等也可以在这里使用
 
 ```toml
 [[Shows]]
@@ -237,6 +241,12 @@ OutTmpl = "[{{ .StreamerName }}][{{ now | date \"2006-01-02 15-04-05\"}}]"
 一个包含所有特性的配置文件。
 
 ```toml
+# 全局 OutTmpl
+OutTmpl = "[{{ now | date \"2006-01-02 15-04-05\"}}][{{ .RoomName }}]"
+# 全局 SaveDir，绝对路径
+SaveDir = "/Users/luxcgo/olive/{{ .SiteName }}/{{ .StreamerName }}/"
+
+# 全局变量，可用于配置代理
 [[Envs]]
 Key = "https_proxy"
 Value = "http://127.0.0.1:7890"
@@ -244,9 +254,13 @@ Value = "http://127.0.0.1:7890"
 Key = "http_proxy"
 Value = "http://127.0.0.1:7890"
 
+# 日志等级 (0~6), 越大日志输出越多
 LogLevel = 5
+# 直播间状态查询间隔时间（秒）
 SnapRestSeconds = 15
+# 文件是否满足切割条件检测间隔时间（秒）
 SplitRestSeconds = 60
+# 直播间录播结束后执行命令的并发执行的个数
 CommanderPoolSize = 1
 
 [UploadConfig]
@@ -254,6 +268,7 @@ Enable = true
 ExecPath = "biliup"
 Filepath = ""
 
+# 部分网站需要配置 cookie
 [PlatformConfig]
 DouyinCookie = "__ac_nonce=06245c89100e7ab2dd536; __ac_signature=_02B4Z6wo00f01LjBMSAAAIDBwA.aJ.c4z1C44TWAAEx696;"
 KuaishouCookie = "did=web_d86297aa2f579589b8abc2594b0ea985"

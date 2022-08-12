@@ -1,29 +1,19 @@
 package recorder
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sync/atomic"
-	"text/template"
 	"time"
 
-	"github.com/go-dora/filenamify"
 	"github.com/go-olive/olive/src/engine"
 	"github.com/go-olive/olive/src/enum"
 	l "github.com/go-olive/olive/src/log"
 	"github.com/go-olive/olive/src/parser"
 	"github.com/go-olive/olive/src/uploader"
-	"github.com/go-olive/olive/src/util"
 	"github.com/sirupsen/logrus"
-)
-
-var (
-	defaultOutTmpl = template.Must(template.New("filename").Funcs(util.NameFuncMap).
-		Parse(`[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv`))
 )
 
 type Recorder interface {
@@ -142,35 +132,7 @@ func (r *recorder) record() error {
 	}
 
 	roomName, _ := r.show.RoomName()
-
-	info := &struct {
-		StreamerName string
-		RoomName     string
-	}{
-		StreamerName: r.show.GetStreamerName(),
-		RoomName:     roomName,
-	}
-
-	tmpl := defaultOutTmpl
-	if r.show.GetOutTmpl() != "" {
-		_tmpl, err := template.New("user_defined_filename").Funcs(util.NameFuncMap).Parse(r.show.GetOutTmpl())
-		if err == nil {
-			tmpl = _tmpl
-		} else {
-			l.Logger.Error(err)
-		}
-	}
-
-	buf := new(bytes.Buffer)
-	if err := tmpl.Execute(buf, info); err != nil {
-		l.Logger.Error(err)
-		const format = "2006-01-02 15-04-05"
-		out = fmt.Sprintf("[%s][%s][%s].flv", r.show.GetStreamerName(), roomName, time.Now().Format(format))
-	} else {
-		out = buf.String()
-	}
-
-	out = filenamify.FilenamifyMustCompile(out)
+	out = r.show.GetOut()
 
 	l.Logger.WithFields(logrus.Fields{
 		"pf": r.show.GetPlatform(),

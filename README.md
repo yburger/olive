@@ -72,6 +72,8 @@ Add config `OutTmpl`
 
 - Stream Title: `{{ .RoomName }}`
 
+- Site Name: `{{ .SiteName }}`
+
 ```toml
 [[Shows]]
 Platform = "bilibili"
@@ -84,6 +86,8 @@ OutTmpl = "[{{ now | date \"2006-01-02 15-04-05\"}}][{{ .StreamerName }}][{{ .Ro
 ### Custom video save location
 
 Add config `SaveDir`
+
+> The template vars in file name can be used in here as well.
 
 ```toml
 [[Shows]]
@@ -237,6 +241,11 @@ OutTmpl = "[{{ .StreamerName }}][{{ now | date \"2006-01-02 15-04-05\"}}]"
 A config file with every feature involved.
 
 ```toml
+# global OutTmpl (can be overwritten by show's OutTmpl)
+OutTmpl = "[{{ now | date \"2006-01-02 15-04-05\"}}][{{ .RoomName }}]"
+# global SaveDir (absolute path, can be overwritten by show's OutTmpl
+SaveDir = "/Users/luxcgo/olive/{{ .SiteName }}/{{ .StreamerName }}/"
+
 [[Envs]]
 Key = "https_proxy"
 Value = "http://127.0.0.1:7890"

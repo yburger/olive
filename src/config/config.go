@@ -19,9 +19,11 @@ import (
 )
 
 var (
-	AppVersion = "v0.3.3"
+	AppVersion = "v0.3.3-src"
 	APP        = &appConfig{}
 	defaultAPP = &appConfig{
+		OutTmpl: `[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv`,
+
 		LogLevel:          logrus.DebugLevel,
 		SnapRestSeconds:   15,
 		SplitRestSeconds:  60,
@@ -45,6 +47,9 @@ var (
 )
 
 type appConfig struct {
+	SaveDir string
+	OutTmpl string
+
 	LogLevel          logrus.Level
 	SnapRestSeconds   uint
 	SplitRestSeconds  uint
@@ -101,6 +106,13 @@ func (this *appConfig) checkAndFix() {
 	if cookie != "" {
 		this.DouyinCookie = cookie
 		this.KuaishouCookie = cookie
+	}
+	if this.OutTmpl == "" {
+		this.OutTmpl = defaultAPP.OutTmpl
+	}
+	if this.SaveDir == "" {
+		this.SaveDir, _ = os.Getwd()
+		this.SaveDir = strings.TrimSpace(this.SaveDir)
 	}
 }
 
@@ -176,6 +188,16 @@ func (s *Show) checkAndFix() {
 				l.Logger.Error(err)
 			}
 		}
+	}
+
+	// fix SaveDir
+	if s.SaveDir == "" {
+		s.SaveDir = APP.SaveDir
+	}
+
+	// fix OutTmpl
+	if s.OutTmpl == "" {
+		s.OutTmpl = APP.OutTmpl
 	}
 }
 

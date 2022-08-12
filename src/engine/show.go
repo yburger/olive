@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/go-dora/filenamify"
 	"github.com/go-olive/olive/src/config"
 	"github.com/go-olive/olive/src/dispatcher"
 	"github.com/go-olive/olive/src/enum"
@@ -22,6 +23,11 @@ import (
 	"github.com/go-olive/tv"
 )
 
+var (
+	defaultOutTmpl = template.Must(template.New("filename").Funcs(util.NameFuncMap).
+		Parse(`[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv`))
+)
+
 type ID string
 
 type Show interface {
@@ -29,6 +35,7 @@ type Show interface {
 	GetPlatform() string
 	GetRoomID() string
 	GetStreamerName() string
+	GetOut() string
 	GetOutTmpl() string
 	GetSaveDir() string
 	GetPostCmds() []*exec.Cmd
@@ -153,32 +160,74 @@ func (s *show) GetOutTmpl() string {
 	return s.OutTmpl
 }
 
+// GetOut generate output filename
+func (s *show) GetOut() (out string) {
+	roomName, _ := s.RoomName()
+
+	// generate template info
+	info := &struct {
+		StreamerName string
+		RoomName     string
+		SiteName     string
+	}{
+		StreamerName: s.GetStreamerName(),
+		RoomName:     roomName,
+		SiteName:     s.SiteName(),
+	}
+
+	// generate file name
+	tmpl, err := template.New("user_defined_filename").Funcs(util.NameFuncMap).Parse(s.GetOutTmpl())
+	if err != nil {
+		l.Logger.Error(err)
+		tmpl = defaultOutTmpl
+	}
+
+	buf := new(bytes.Buffer)
+	if err := tmpl.Execute(buf, info); err != nil {
+		l.Logger.Error(err)
+		const format = "2006-01-02 15-04-05"
+		out = fmt.Sprintf("[%s][%s][%s].flv", info.StreamerName, roomName, time.Now().Format(format))
+	} else {
+		out = buf.String()
+	}
+
+	out = filenamify.FilenamifyMustCompile(out)
+	return
+}
+
 func (s *show) GetParser() string {
 	return s.Parser
 }
 
+// GetSaveDir generate save dir
 func (s *show) GetSaveDir() string {
 	defaultSaveDir, _ := os.Getwd()
-	saveDir := strings.TrimSpace(s.SaveDir)
+	defaultSaveDir = strings.TrimSpace(s.SaveDir)
 
-	if saveDir == "" {
-		return defaultSaveDir
+	roomName, _ := s.RoomName()
+	// generate template info
+	info := &struct {
+		StreamerName string
+		RoomName     string
+		SiteName     string
+	}{
+		StreamerName: s.GetStreamerName(),
+		RoomName:     roomName,
+		SiteName:     s.SiteName(),
 	}
 
-	tmpl, err := template.New("user_defined_savedir_tmpl").Funcs(util.NameFuncMap).Parse(saveDir)
+	tmpl, err := template.New("user_defined_savedir_tmpl").Funcs(util.NameFuncMap).Parse(s.SaveDir)
 	if err != nil {
 		l.Logger.Error(err)
 		return defaultSaveDir
 	}
 	buf := new(bytes.Buffer)
-	if err := tmpl.Execute(buf, nil); err != nil {
+	if err := tmpl.Execute(buf, info); err != nil {
 		l.Logger.Error(err)
 		return defaultSaveDir
-	} else {
-		saveDir = buf.String()
 	}
 
-	return saveDir
+	return buf.String()
 }
 
 func (s *show) GetPostCmds() []*exec.Cmd {
