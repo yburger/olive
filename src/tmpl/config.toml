@@ -43,3 +43,11 @@ RoomID = "3x35ta8wpyngjwk"
 Platform = "tiktok"
 RoomID = "rpd.beans"
 OutTmpl = "[{{ now | date \"2006-01-02 15-04-05\"}}][{{ .StreamerName }}]"
+
+[[Shows]]
+Platform = "streamlink"
+RoomID = "https://live.bilibili.com/2273292"
+StreamerName = "霏箬"
+OutTmpl = "[{{ .StreamerName }}][{{ now | date \"2006-01-02 15-04-05\"}}]"
+[[Shows.PostCmds]]
+Path = "olivearchive"
