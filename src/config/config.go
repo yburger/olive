@@ -34,6 +34,8 @@ var (
 			DouyinCookie:   "__ac_nonce=062c84d05004a461cf7f2; __ac_signature=_02B4Z6wo00f01NAKk1QAAIDBqMR4UNttsUjQKpfAAFbQjTrG-JmICfTUMMVzKe3crg5Fk4y4e4DGURjAV4VW2B6WwXdqq3UC1c0waQMKIjhZn5Ve1LxiGmyDuVlSBN7aRhuGfEIwwfxXcYhA4e;",
 			KuaishouCookie: "did=web_e7367cd09866e986065dd2e0f93630fe",
 		},
+
+		ParserMonitorRestSeconds: 60 * 5,
 	}
 
 	appCfgFilePath string
@@ -55,6 +57,8 @@ type appConfig struct {
 	SnapRestSeconds   uint
 	SplitRestSeconds  uint
 	CommanderPoolSize uint
+
+	ParserMonitorRestSeconds uint
 
 	*UploadConfig
 	*PlatformConfig
@@ -114,6 +118,9 @@ func (this *appConfig) checkAndFix() {
 	if this.SaveDir == "" {
 		this.SaveDir, _ = os.Getwd()
 		this.SaveDir = strings.TrimSpace(this.SaveDir)
+	}
+	if this.ParserMonitorRestSeconds == 0 {
+		this.ParserMonitorRestSeconds = defaultAPP.ParserMonitorRestSeconds
 	}
 }
 

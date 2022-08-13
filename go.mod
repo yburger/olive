@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
+	github.com/coocood/freecache v1.2.2
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/go-dora/filenamify v0.1.1
 	github.com/go-olive/flv v0.0.0-20220608124255-065f61015270
@@ -19,6 +20,7 @@ require (
 	github.com/Davincible/gotiktoklive v0.0.0-20220607111918-9d1ed1997665 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/funny/slab v0.0.0-20180511031532-b1fad5e5d478 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect

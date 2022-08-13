@@ -2,9 +2,12 @@ package recorder
 
 import (
 	"errors"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/coocood/freecache"
 	"github.com/go-olive/olive/src/config"
 	"github.com/go-olive/olive/src/engine"
 	l "github.com/go-olive/olive/src/log"
@@ -93,6 +96,80 @@ func (m *Manager) Split() {
 					}).Info("restart by split program")
 					r.Show().RestartRecorder()
 				}
+			}
+		}
+	}
+}
+
+func (m *Manager) MonitorParserStatus() {
+	isValid := false
+	for _, r := range config.APP.Shows {
+		if r.Parser != "flv" {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		return
+	}
+
+	l.Logger.Info("parser-monitor program starts...")
+
+	const cacheSize = 1024
+	cache := freecache.NewCache(cacheSize)
+	expire := config.APP.ParserMonitorRestSeconds + 1
+
+	t := time.NewTicker(time.Second * time.Duration(config.APP.ParserMonitorRestSeconds))
+	defer t.Stop()
+
+	for {
+		select {
+		case <-m.stop:
+			return
+		case <-t.C:
+
+			// l.Logger.Debug("---------------------")
+			// l.Logger.Debugf("EntryCount = %d", cache.EntryCount())
+			// iter := cache.NewIterator()
+			// for entry := iter.Next(); entry != nil; entry = iter.Next() {
+			// 	l.Logger.Debugf("key = %s, val = %s", entry.Key, entry.Value)
+			// }
+			// l.Logger.Debug("---------------------")
+
+			for _, r := range m.savers {
+				fi, err := os.Stat(r.Out())
+				if err != nil {
+					continue
+				}
+				curSize := fi.Size()
+
+				func() {
+					defer func() {
+						cache.Set([]byte(r.Out()), []byte(strconv.FormatInt(curSize, 10)), int(expire))
+					}()
+
+					preSizeBytes, err := cache.Peek([]byte(r.Out()))
+					if err != nil {
+						// l.Logger.Error(err)
+						return
+					}
+
+					preSize, err := strconv.ParseInt(string(preSizeBytes), 10, 64)
+					if err != nil {
+						l.Logger.Error(err)
+						return
+					}
+
+					if curSize <= preSize {
+						l.Logger.WithFields(logrus.Fields{
+							"pf": r.Show().GetPlatform(),
+							"id": r.Show().GetRoomID(),
+						}).Info("restart by parser-monitor program")
+						r.Show().RestartRecorder()
+					}
+					return
+				}()
+
 			}
 		}
 	}
