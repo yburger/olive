@@ -20,6 +20,7 @@ olive:
 
 tidy:
 	go mod tidy
+	go mod vendor
 
 run:
 	go run -ldflags="-X main.build=${VERSION}" app/services/olive-api/main.go

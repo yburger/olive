@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
+	github.com/ardanlabs/conf/v3 v3.1.2
 	github.com/coocood/freecache v1.2.2
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/go-dora/filenamify v0.1.1

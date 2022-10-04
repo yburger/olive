@@ -1,12 +1,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
+	"github.com/ardanlabs/conf/v3"
 	"github.com/go-olive/olive/foundation/logger"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
@@ -49,10 +52,55 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
 
 	// =========================================================================
+	// Configuration
+
+	cfg := struct {
+		conf.Version
+		Web struct {
+			ReadTimeout     time.Duration `conf:"default:5s"`
+			WriteTimeout    time.Duration `conf:"default:10s"`
+			IdleTimeout     time.Duration `conf:"default:120s"`
+			ShutdownTimeout time.Duration `conf:"default:20s"`
+			APIHost         string        `conf:"default:0.0.0.0:3000"`
+			DebugHost       string        `conf:"default:0.0.0.0:4000"`
+		}
+		DB struct {
+			User         string `conf:"default:postgres"`
+			Password     string `conf:"default:postgres,mask"`
+			Host         string `conf:"default:localhost"`
+			Name         string `conf:"default:postgres"`
+			MaxIdleConns int    `conf:"default:0"`
+			MaxOpenConns int    `conf:"default:0"`
+			DisableTLS   bool   `conf:"default:true"`
+		}
+	}{
+		Version: conf.Version{
+			Build: build,
+			Desc:  "Copyright 2022 luxcgo",
+		},
+	}
+
+	const prefix = "OLIVE"
+	help, err := conf.Parse(prefix, &cfg)
+	if err != nil {
+		if errors.Is(err, conf.ErrHelpWanted) {
+			fmt.Println(help)
+			return nil
+		}
+		return fmt.Errorf("parsing config: %w", err)
+	}
+
+	// =========================================================================
 	// App Starting
 
 	log.Infow("starting service", "version", build)
 	defer log.Infow("shutdown complete")
+
+	out, err := conf.String(&cfg)
+	if err != nil {
+		return fmt.Errorf("generating config for output: %w", err)
+	}
+	log.Infow("startup", "config", out)
 
 	// =========================================================================
 	// Shutdown
