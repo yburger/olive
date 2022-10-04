@@ -14,6 +14,10 @@ ARG BUILD_REF
 # Copy the source code into the container.
 COPY . /service
 
+# Build the admin binary.
+WORKDIR /service/app/tooling/olive-admin
+RUN go build -ldflags "-X main.build=${BUILD_REF}"
+
 # Build the service binary.
 WORKDIR /service/app/services/olive-api
 RUN go build -ldflags "-X main.build=${BUILD_REF}"
@@ -25,6 +29,7 @@ ARG BUILD_DATE
 ARG BUILD_REF
 RUN addgroup -g 1000 -S olive && \
     adduser -u 1000 -h /service -G olive -S olive
+COPY --from=build_olive-api --chown=olive:olive /service/app/tooling/olive-admin/olive-admin /service/olive-admin
 COPY --from=build_olive-api --chown=olive:olive /service/app/services/olive-api/olive-api /service/olive-api
 WORKDIR /service
 USER olive

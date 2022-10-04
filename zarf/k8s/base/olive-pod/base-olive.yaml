@@ -17,6 +17,15 @@ spec:
       labels:
         app: olive
     spec:
+      terminationGracePeriodSeconds: 60
+      initContainers:
+      # olive-api init container configuration
+      - name: init-migrate
+        image: olive-api-image
+        command: ['./olive-admin', 'migrate']
+      - name: init-seed
+        image: olive-api-image
+        command: ['./olive-admin', 'seed']
       containers:
       # olive-api container configuration
       - name: olive-api

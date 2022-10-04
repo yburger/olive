@@ -88,3 +88,12 @@ kind-describe:
 	kubectl describe nodes
 	kubectl describe svc
 	kubectl describe pod -l app=olive
+
+# ==============================================================================
+# Administration
+
+migrate:
+	go run app/tooling/olive-admin/main.go migrate
+
+seed: migrate
+	go run app/tooling/olive-admin/main.go seed
