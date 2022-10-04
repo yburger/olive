@@ -43,3 +43,35 @@ kind-up:
 kind-down:
 	kind delete cluster --name $(KIND_CLUSTER)
 	
+kind-load:
+	cd zarf/k8s/kind/olive-pod; kustomize edit set image olive-api-image=olive-api-arm64:$(VERSION)
+	kind load docker-image olive-api-arm64:$(VERSION) --name $(KIND_CLUSTER)
+
+kind-apply:
+	kustomize build zarf/k8s/kind/olive-pod | kubectl apply -f -
+
+kind-services-delete:
+	kustomize build zarf/k8s/kind/olive-pod | kubectl delete -f -
+
+kind-restart:
+	kubectl rollout restart deployment olive-pod
+
+kind-update: all kind-load kind-restart
+
+kind-update-apply: all kind-load kind-apply
+
+kind-logs:
+	kubectl logs -l app=olive --all-containers=true -f --tail=100 | go run app/tooling/logfmt/main.go
+
+kind-status:
+	kubectl get nodes -o wide
+	kubectl get svc -o wide
+	kubectl get pods -o wide --watch --all-namespaces
+
+kind-status-olive:
+	kubectl get pods -o wide --watch --namespace=olive-system
+
+kind-describe:
+	kubectl describe nodes
+	kubectl describe svc
+	kubectl describe pod -l app=olive

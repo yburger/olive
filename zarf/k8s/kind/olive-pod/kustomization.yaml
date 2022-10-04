@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./kind-olive-config.yaml
+- ../../base/olive-pod/
+patchesStrategicMerge:
+- ./kind-olive-patch.yaml
+images:
+- name: olive-api-image
+  newName: olive-api-arm64
+  newTag: 0.5.0

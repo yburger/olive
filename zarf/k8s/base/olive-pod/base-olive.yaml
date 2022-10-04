@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: olive-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: olive-pod # Base POD name
+  namespace: olive-system
+spec:
+  selector:
+    matchLabels:
+      app: olive # Selector for POD name search.
+  template:
+    metadata:
+      labels:
+        app: olive
+    spec:
+      containers:
+      # olive-api container configuration
+      - name: olive-api
+        image: olive-api-image
