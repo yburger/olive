@@ -15,6 +15,8 @@ require (
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/google/uuid v1.3.0
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.7
 	github.com/lthibault/jitterbug/v2 v2.2.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.8
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5

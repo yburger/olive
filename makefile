@@ -49,10 +49,13 @@ kind-load:
 	kind load docker-image olive-api-arm64:$(VERSION) --name $(KIND_CLUSTER)
 
 kind-apply:
+	kustomize build zarf/k8s/kind/database-pod | kubectl apply -f -
+	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
 	kustomize build zarf/k8s/kind/olive-pod | kubectl apply -f -
 
 kind-services-delete:
 	kustomize build zarf/k8s/kind/olive-pod | kubectl delete -f -
+	kustomize build zarf/k8s/kind/database-pod | kubectl delete -f -
 
 kind-restart:
 	kubectl rollout restart deployment olive-pod
@@ -64,6 +67,12 @@ kind-update-apply: all kind-load kind-apply
 kind-logs:
 	kubectl logs -l app=olive --all-containers=true -f --tail=100 | go run app/tooling/logfmt/main.go
 
+kind-logs-olive:
+	kubectl logs -l app=olive --all-containers=true -f --tail=100 | go run app/tooling/logfmt/main.go -service=OLIVE-API
+
+kind-logs-db:
+	kubectl logs -l app=database --namespace=database-system --all-containers=true -f --tail=100
+
 kind-status:
 	kubectl get nodes -o wide
 	kubectl get svc -o wide
@@ -72,6 +81,9 @@ kind-status:
 kind-status-olive:
 	kubectl get pods -o wide --watch --namespace=olive-system
 
+kind-status-db:
+	kubectl get pods -o wide --watch --namespace=database-system
+	
 kind-describe:
 	kubectl describe nodes
 	kubectl describe svc
