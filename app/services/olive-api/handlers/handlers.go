@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-olive/olive/app/services/olive-api/handlers/debug/checkgrp"
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/testgrp"
+	"github.com/go-olive/olive/business/web/v1/mid"
 	"github.com/go-olive/olive/foundation/web"
 	"go.uber.org/zap"
 )
@@ -62,6 +63,9 @@ func APIMux(cfg APIMuxConfig) *web.App {
 	// Construct the web.App which holds all routes.
 	app := web.NewApp(
 		cfg.Shutdown,
+		mid.Logger(cfg.Log),
+		mid.Errors(cfg.Log),
+		mid.Panics(),
 	)
 
 	// Load the routes for the different versions of the API.
