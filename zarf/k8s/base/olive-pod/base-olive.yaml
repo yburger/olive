@@ -21,3 +21,19 @@ spec:
       # olive-api container configuration
       - name: olive-api
         image: olive-api-image
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olive-service
+  namespace: olive-system
+spec:
+  selector:
+    app: olive
+  ports:
+  - name: olive-api
+    port: 3000
+    targetPort: olive-api
+  - name: olive-api-debug
+    port: 4000
+    targetPort: olive-api-debug

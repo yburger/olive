@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/ardanlabs/conf/v3 v3.1.2
 	github.com/coocood/freecache v1.2.2
+	github.com/dimfeld/httptreemux/v5 v5.4.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/go-dora/filenamify v0.1.1
 	github.com/go-olive/flv v0.0.0-20220608124255-065f61015270
