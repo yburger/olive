@@ -1,0 +1,89 @@
+package show
+
+import (
+	"os/exec"
+	"time"
+
+	"github.com/go-olive/olive/business/core/show/db"
+	jsoniter "github.com/json-iterator/go"
+)
+
+// Show represents an individual show.
+type Show struct {
+	ID           string     `json:"show_id"`
+	Enable       bool       `json:"enable"`
+	Platform     string     `json:"platform"`
+	RoomID       string     `json:"room_id"`
+	StreamerName string     `json:"streamer_name"`
+	OutTmpl      string     `json:"out_tmpl"`
+	Parser       string     `json:"parser"`
+	SaveDir      string     `json:"save_dir"`
+	PostCmds     []exec.Cmd `json:"post_cmds"`
+	SplitRule    SplitRule  `json:"split_rule"`
+	DateCreated  time.Time  `json:"date_created"`
+	DateUpdated  time.Time  `json:"date_updated"`
+}
+
+type SplitRule struct {
+	FileSize int64
+	Duration time.Duration
+}
+
+// NewShow contains information needed to create a new Show.
+type NewShow struct {
+	Enable       bool   `json:"enable"`
+	Platform     string `json:"platform" validate:"required"`
+	RoomID       string `json:"room_id" validate:"required"`
+	StreamerName string `json:"streamer_name"`
+	OutTmpl      string `json:"out_tmpl"`
+	Parser       string `json:"parser"`
+	SaveDir      string `json:"save_dir"`
+	PostCmds     string `json:"post_cmds"`
+	SplitRule    string `json:"split_rule"`
+}
+
+// UpdateShow defines what information may be provided to modify an existing
+// Show. All fields are optional so clients can send just the fields they want
+// changed. It uses pointer fields so we can differentiate between a field that
+// was not provided and a field that was provided as explicitly blank. Normally
+// we do not want to use pointers to basic types but we make exceptions around
+// marshalling/unmarshalling.
+type UpdateShow struct {
+	Enable       *bool   `json:"enable"`
+	Platform     *string `json:"platform"`
+	RoomID       *string `json:"room_id"`
+	StreamerName *string `json:"streamer_name"`
+	OutTmpl      *string `json:"out_tmpl"`
+	Parser       *string `json:"parser"`
+	SaveDir      *string `json:"save_dir"`
+	PostCmds     *string `json:"post_cmds"`
+	SplitRule    *string `json:"split_rule"`
+}
+
+// =============================================================================
+
+func toShow(dbShow db.Show) Show {
+	s := Show{
+		ID:           dbShow.ID,
+		Enable:       dbShow.Enable,
+		Platform:     dbShow.Platform,
+		RoomID:       dbShow.RoomID,
+		StreamerName: dbShow.StreamerName,
+		OutTmpl:      dbShow.OutTmpl,
+		Parser:       dbShow.Parser,
+		SaveDir:      dbShow.SaveDir,
+		DateCreated:  dbShow.DateCreated,
+		DateUpdated:  dbShow.DateUpdated,
+	}
+	jsoniter.UnmarshalFromString(dbShow.PostCmds, &s.PostCmds)
+	jsoniter.UnmarshalFromString(dbShow.SplitRule, &s.PostCmds)
+	return s
+}
+
+func toShowSlice(dbShows []db.Show) []Show {
+	Shows := make([]Show, len(dbShows))
+	for i, dbShow := range dbShows {
+		Shows[i] = toShow(dbShow)
+	}
+	return Shows
+}

@@ -2,7 +2,7 @@
 -- Description: Create table shows
 CREATE TABLE shows (
 	show_id       UUID,
-	status        BOOLEAN,
+	enable        BOOLEAN,
 	platform   	  TEXT,
 	room_id       TEXT,
 	streamer_name TEXT,

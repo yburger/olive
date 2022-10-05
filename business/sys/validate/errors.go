@@ -1,8 +1,9 @@
 package validate
 
 import (
-	"encoding/json"
 	"errors"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 // FieldError is used to indicate an error with a specific request field.
@@ -16,7 +17,7 @@ type FieldErrors []FieldError
 
 // Error implements the error interface.
 func (fe FieldErrors) Error() string {
-	d, err := json.Marshal(fe)
+	d, err := jsoniter.Marshal(fe)
 	if err != nil {
 		return err.Error()
 	}

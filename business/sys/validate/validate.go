@@ -3,15 +3,18 @@ package validate
 
 import (
 	"errors"
+	"os/exec"
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/google/uuid"
+	jsoniter "github.com/json-iterator/go"
 )
 
 // validate holds the settings and caches for validating request struct values.
@@ -92,4 +95,25 @@ func CheckID(id string) error {
 // CheckEmail validates that the string is an email.
 func CheckEmail(email string) bool {
 	return emailRegex.MatchString(email)
+}
+
+// CheckPostCmds validates that the PostCmds format is valid.
+func CheckPostCmds(postCmds string) error {
+	if postCmds == "" {
+		return nil
+	}
+	var tmp []exec.Cmd
+	return jsoniter.UnmarshalFromString(postCmds, &tmp)
+}
+
+// CheckSplitRule validates that the SplitRule format is valid.
+func CheckSplitRule(splitRule string) error {
+	if splitRule == "" {
+		return nil
+	}
+	var tmp struct {
+		FileSize int64
+		Duration time.Duration
+	}
+	return jsoniter.UnmarshalFromString(splitRule, &tmp)
 }

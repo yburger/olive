@@ -2,8 +2,9 @@ package web
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 // Respond converts a Go value to JSON and sends it to the client.
@@ -19,7 +20,7 @@ func Respond(ctx context.Context, w http.ResponseWriter, data any, statusCode in
 	}
 
 	// Convert the response value to JSON.
-	jsonData, err := json.Marshal(data)
+	jsonData, err := jsoniter.Marshal(data)
 	if err != nil {
 		return err
 	}

@@ -3,13 +3,13 @@ package checkgrp
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/go-olive/olive/business/sys/database"
 	"github.com/jmoiron/sqlx"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 )
 
@@ -85,8 +85,8 @@ func (h Handlers) Liveness(w http.ResponseWriter, r *http.Request) {
 
 func response(w http.ResponseWriter, statusCode int, data interface{}) error {
 
-	// Convert the response value to JSON.
-	jsonData, err := json.Marshal(data)
+	// Convert the response value to jsoniter.
+	jsonData, err := jsoniter.Marshal(data)
 	if err != nil {
 		return err
 	}

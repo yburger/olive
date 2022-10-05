@@ -3,12 +3,13 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 var service string
@@ -28,7 +29,7 @@ func main() {
 
 		// Convert the JSON to a map for processing.
 		m := make(map[string]any)
-		err := json.Unmarshal([]byte(s), &m)
+		err := jsoniter.Unmarshal([]byte(s), &m)
 		if err != nil {
 			if service == "" {
 				fmt.Println(s)
