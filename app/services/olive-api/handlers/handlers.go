@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/go-olive/olive/app/services/olive-api/handlers/debug/checkgrp"
-	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/testgrp"
+	v1 "github.com/go-olive/olive/app/services/olive-api/handlers/v1"
 	"github.com/go-olive/olive/business/web/v1/mid"
 	"github.com/go-olive/olive/foundation/web"
 	"github.com/jmoiron/sqlx"
@@ -71,18 +71,11 @@ func APIMux(cfg APIMuxConfig) *web.App {
 		mid.Panics(),
 	)
 
-	// Load the routes for the different versions of the API.
-	v1(app, cfg)
+	// Load the v1 routes.
+	v1.Routes(app, v1.Config{
+		Log: cfg.Log,
+		DB:  cfg.DB,
+	})
 
 	return app
-}
-
-// v1 binds all the version 1 routes.
-func v1(app *web.App, cfg APIMuxConfig) {
-	const version = "v1"
-
-	tgh := testgrp.Handlers{
-		Log: cfg.Log,
-	}
-	app.Handle(http.MethodGet, version, "/test", tgh.Test)
 }
