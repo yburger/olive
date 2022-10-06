@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-olive/olive/business/core/show"
 	v1Web "github.com/go-olive/olive/business/web/v1"
+	"github.com/go-olive/olive/business/web/v1/mid"
 	"github.com/go-olive/olive/foundation/web"
 )
 
@@ -35,7 +36,7 @@ func (h Handlers) Create(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return fmt.Errorf("show[%+v]: %w", &s, err)
 	}
 
-	return web.Respond(ctx, w, s, http.StatusCreated)
+	return mid.Respond(ctx, w, s, http.StatusCreated)
 }
 
 // Update updates a show in the system.
@@ -64,10 +65,10 @@ func (h Handlers) Update(ctx context.Context, w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	return web.Respond(ctx, w, nil, http.StatusNoContent)
+	return mid.Respond(ctx, w, nil, http.StatusOK)
 }
 
-// Delete removes a show from the system.
+// Delete removes one or many shows from the system.
 func (h Handlers) Delete(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	showID := web.Param(r, "id")
 
@@ -80,17 +81,17 @@ func (h Handlers) Delete(ctx context.Context, w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	return web.Respond(ctx, w, nil, http.StatusNoContent)
+	return mid.Respond(ctx, w, nil, http.StatusOK)
 }
 
 // Query returns a list of shows with paging.
 func (h Handlers) Query(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	page := web.Param(r, "page")
+	page := web.Param(r, "pageIndex")
 	pageNumber, err := strconv.Atoi(page)
 	if err != nil {
 		return v1Web.NewRequestError(fmt.Errorf("invalid page format [%s]", page), http.StatusBadRequest)
 	}
-	rows := web.Param(r, "rows")
+	rows := web.Param(r, "pageSize")
 	rowsPerPage, err := strconv.Atoi(rows)
 	if err != nil {
 		return v1Web.NewRequestError(fmt.Errorf("invalid rows format [%s]", rows), http.StatusBadRequest)
@@ -101,7 +102,20 @@ func (h Handlers) Query(ctx context.Context, w http.ResponseWriter, r *http.Requ
 		return fmt.Errorf("unable to query for shows: %w", err)
 	}
 
-	return web.Respond(ctx, w, shows, http.StatusOK)
+	num, err := h.Show.TotalNum(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to query for total number: %w", err)
+	}
+
+	data := struct {
+		Total int64       `json:"total"`
+		List  []show.Show `json:"list"`
+	}{
+		Total: num,
+		List:  shows,
+	}
+
+	return mid.Respond(ctx, w, data, http.StatusOK)
 }
 
 // QueryByID returns a show by its ID.

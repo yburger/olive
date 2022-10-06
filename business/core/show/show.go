@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-olive/olive/business/core/show/db"
@@ -141,11 +142,14 @@ func (c Core) Update(ctx context.Context, showID string, updateShow UpdateShow, 
 
 // Delete removes a show from the database.
 func (c Core) Delete(ctx context.Context, showID string) error {
-	if err := validate.CheckID(showID); err != nil {
-		return ErrInvalidID
+	showIDList := strings.Split(showID, ",")
+	for _, id := range showIDList {
+		if err := validate.CheckID(id); err != nil {
+			return fmt.Errorf("delete: %w showID:%s", ErrInvalidID, id)
+		}
 	}
 
-	if err := c.store.Delete(ctx, showID); err != nil {
+	if err := c.store.Delete(ctx, showIDList); err != nil {
 		return fmt.Errorf("delete: %w", err)
 	}
 
@@ -177,4 +181,14 @@ func (c Core) QueryByID(ctx context.Context, showID string) (Show, error) {
 	}
 
 	return toShow(dbShow), nil
+}
+
+// TotalNum gets the total number of shows from the database.
+func (c Core) TotalNum(ctx context.Context) (int64, error) {
+	num, err := c.store.TotalNum(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("query: %w", err)
+	}
+
+	return num, nil
 }

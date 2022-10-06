@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/showgrp"
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/testgrp"
+	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/usrgrp"
 	"github.com/go-olive/olive/business/core/show"
 	"github.com/go-olive/olive/foundation/web"
 	"github.com/jmoiron/sqlx"
@@ -27,6 +28,7 @@ func Routes(app *web.App, cfg Config) {
 	sgh := showgrp.Handlers{
 		Show: show.NewCore(cfg.Log, cfg.DB),
 	}
+	app.Handle(http.MethodGet, version, "/shows/:pageIndex/:pageSize", sgh.Query)
 	app.Handle(http.MethodGet, version, "/shows/:id", sgh.QueryByID)
 	app.Handle(http.MethodPost, version, "/shows", sgh.Create)
 	app.Handle(http.MethodPut, version, "/shows/:id", sgh.Update)
@@ -37,4 +39,10 @@ func Routes(app *web.App, cfg Config) {
 		Log: cfg.Log,
 	}
 	app.Handle(http.MethodGet, version, "/test", tgh.Test)
+
+	// Register user endpoints.
+	ugh := usrgrp.Handlers{
+		Log: cfg.Log,
+	}
+	app.Handle(http.MethodPost, version, "/user/login", ugh.Login)
 }

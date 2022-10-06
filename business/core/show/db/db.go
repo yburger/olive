@@ -4,6 +4,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-olive/olive/business/sys/database"
 	"github.com/jmoiron/sqlx"
@@ -86,22 +87,17 @@ func (s Store) Update(ctx context.Context, show Show) error {
 	return nil
 }
 
-// Delete removes a show from the database.
-func (s Store) Delete(ctx context.Context, showID string) error {
-	data := struct {
-		ShowID string `db:"show_id"`
-	}{
-		ShowID: showID,
-	}
-
-	const q = `
+// Delete removes one or many shows from the database.
+func (s Store) Delete(ctx context.Context, showIDList []string) error {
+	str := "('" + strings.Join(showIDList, "', '") + "')"
+	var q = `
 	DELETE FROM
 		shows
 	WHERE
-		show_id = :show_id`
+		show_id in ` + str
 
-	if err := database.NamedExecContext(ctx, s.log, s.db, q, data); err != nil {
-		return fmt.Errorf("deleting showID[%s]: %w", showID, err)
+	if err := database.NamedExecContext(ctx, s.log, s.db, q, struct{}{}); err != nil {
+		return fmt.Errorf("deleting showIDList[%v]: %w", showIDList, err)
 	}
 
 	return nil
@@ -156,4 +152,22 @@ func (s Store) QueryByID(ctx context.Context, showID string) (Show, error) {
 	}
 
 	return show, nil
+}
+
+// TotalNum gets the total number of shows from the database.
+func (s Store) TotalNum(ctx context.Context) (int64, error) {
+	const q = `
+	SELECT
+		count(*)
+	FROM
+		shows`
+
+	var tmp = struct {
+		Count int64 `json:"count"`
+	}{}
+	if err := database.NamedQueryStruct(ctx, s.log, s.db, q, struct{}{}, &tmp); err != nil {
+		return 0, fmt.Errorf("show count: %w", err)
+	}
+
+	return tmp.Count, nil
 }

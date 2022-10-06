@@ -1,27 +1,26 @@
 package show
 
 import (
-	"os/exec"
 	"time"
+	"unsafe"
 
 	"github.com/go-olive/olive/business/core/show/db"
-	jsoniter "github.com/json-iterator/go"
 )
 
 // Show represents an individual show.
 type Show struct {
-	ID           string     `json:"show_id"`
-	Enable       bool       `json:"enable"`
-	Platform     string     `json:"platform"`
-	RoomID       string     `json:"room_id"`
-	StreamerName string     `json:"streamer_name"`
-	OutTmpl      string     `json:"out_tmpl"`
-	Parser       string     `json:"parser"`
-	SaveDir      string     `json:"save_dir"`
-	PostCmds     []exec.Cmd `json:"post_cmds"`
-	SplitRule    SplitRule  `json:"split_rule"`
-	DateCreated  time.Time  `json:"date_created"`
-	DateUpdated  time.Time  `json:"date_updated"`
+	ID           string    `json:"show_id"`
+	Enable       bool      `json:"enable"`
+	Platform     string    `json:"platform"`
+	RoomID       string    `json:"room_id"`
+	StreamerName string    `json:"streamer_name"`
+	OutTmpl      string    `json:"out_tmpl"`
+	Parser       string    `json:"parser"`
+	SaveDir      string    `json:"save_dir"`
+	PostCmds     string    `json:"post_cmds"`
+	SplitRule    string    `json:"split_rule"`
+	DateCreated  time.Time `json:"date_created"`
+	DateUpdated  time.Time `json:"date_updated"`
 }
 
 type SplitRule struct {
@@ -63,21 +62,8 @@ type UpdateShow struct {
 // =============================================================================
 
 func toShow(dbShow db.Show) Show {
-	s := Show{
-		ID:           dbShow.ID,
-		Enable:       dbShow.Enable,
-		Platform:     dbShow.Platform,
-		RoomID:       dbShow.RoomID,
-		StreamerName: dbShow.StreamerName,
-		OutTmpl:      dbShow.OutTmpl,
-		Parser:       dbShow.Parser,
-		SaveDir:      dbShow.SaveDir,
-		DateCreated:  dbShow.DateCreated,
-		DateUpdated:  dbShow.DateUpdated,
-	}
-	jsoniter.UnmarshalFromString(dbShow.PostCmds, &s.PostCmds)
-	jsoniter.UnmarshalFromString(dbShow.SplitRule, &s.PostCmds)
-	return s
+	s := (*Show)(unsafe.Pointer(&dbShow))
+	return *s
 }
 
 func toShowSlice(dbShows []db.Show) []Show {
