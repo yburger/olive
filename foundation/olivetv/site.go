@@ -9,8 +9,8 @@ var sites sync.Map
 
 type Site interface {
 	Name() string
-	Snap(*Tv) error
-	Permit(RoomUrl) (*Tv, error)
+	Snap(*TV) error
+	Permit(RoomURL) (*TV, error)
 }
 
 func registerSite(siteID string, site Site) {

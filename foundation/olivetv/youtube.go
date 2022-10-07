@@ -20,7 +20,7 @@ func (this *youtube) Name() string {
 	return "油管"
 }
 
-func (this *youtube) Snap(tv *Tv) error {
+func (this *youtube) Snap(tv *TV) error {
 	tv.Info = &Info{
 		Timestamp: time.Now().Unix(),
 	}
@@ -32,7 +32,7 @@ func (this *youtube) Snap(tv *Tv) error {
 	return this.setStreamURL(tv, streamID)
 }
 
-func (this *youtube) setRoomOn(tv *Tv) (string, error) {
+func (this *youtube) setRoomOn(tv *TV) (string, error) {
 	channelURL := fmt.Sprintf("https://www.youtube.com/channel/%s", tv.RoomID)
 	content, err := util.GetURLContent(channelURL)
 	if err != nil {
@@ -49,14 +49,14 @@ func (this *youtube) setRoomOn(tv *Tv) (string, error) {
 	return streamID, nil
 }
 
-func (this *youtube) setStreamURL(tv *Tv, streamID string) error {
+func (this *youtube) setStreamURL(tv *TV, streamID string) error {
 	if !tv.roomOn {
 		return nil
 	}
 	// youtube possibly have multiple lives in one channel,
 	// curruently the program returns the first one.
 	roomURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", streamID)
-	tv.streamUrl = roomURL
+	tv.streamURL = roomURL
 	roomContent, err := util.GetURLContent(roomURL)
 	if err != nil {
 		return err

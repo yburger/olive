@@ -20,14 +20,14 @@ func (this *tiktok) Name() string {
 	return "tiktok"
 }
 
-func (this *tiktok) Snap(tv *Tv) error {
+func (this *tiktok) Snap(tv *TV) error {
 	tv.Info = &Info{
 		Timestamp: time.Now().Unix(),
 	}
 	return this.set(tv)
 }
 
-func (this *tiktok) set(tv *Tv) error {
+func (this *tiktok) set(tv *TV) error {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println("tiktok panic: ", err)
@@ -46,19 +46,19 @@ func (this *tiktok) set(tv *Tv) error {
 		info.StreamURL.FlvPullURL.Sd1,
 		info.StreamURL.FlvPullURL.Sd2,
 	}
-	var streamUrl string
+	var streamURL string
 	for _, v := range candi {
 		if v != "" {
-			streamUrl = v
+			streamURL = v
 			break
 		}
 	}
 
-	if streamUrl != "" {
+	if streamURL != "" {
 		tv.roomName = info.Owner.Nickname + " is LIVE now"
 		tv.streamerName = info.Owner.Nickname
 		tv.roomOn = true
-		tv.streamUrl = streamUrl
+		tv.streamURL = streamURL
 	}
 
 	return nil
@@ -66,8 +66,8 @@ func (this *tiktok) set(tv *Tv) error {
 
 // Permit parse the stream url to get streamer info.
 // eg. https://www.tiktok.com/@maki_1414
-func (this *tiktok) Permit(roomUrl RoomUrl) (*Tv, error) {
-	tv, error := this.base.Permit(roomUrl)
+func (this *tiktok) Permit(roomURL RoomURL) (*TV, error) {
+	tv, error := this.base.Permit(roomURL)
 	if error != nil {
 		return nil, error
 	}

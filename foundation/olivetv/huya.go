@@ -21,7 +21,7 @@ type huya struct {
 	base
 }
 
-func (this *huya) Snap(tv *Tv) error {
+func (this *huya) Snap(tv *TV) error {
 	tv.Info = &Info{
 		Timestamp: time.Now().Unix(),
 	}
@@ -66,14 +66,14 @@ func (this *huya) streamURL(roomID string) (string, error) {
 		u := res[1]
 		if len(u) > 0 {
 			decodedRet, _ := base64.StdEncoding.DecodeString(u)
-			decodedUrl := string(decodedRet)
-			if strings.Contains(decodedUrl, "replay") { //重播
+			decodedURL := string(decodedRet)
+			if strings.Contains(decodedURL, "replay") { //重播
 				return "https:" + u, nil
 			} else {
-				liveLineUrl := this.proc(decodedUrl)
-				liveLineUrl = strings.Replace(liveLineUrl, "hls", "flv", -1)
-				liveLineUrl = strings.Replace(liveLineUrl, "m3u8", "flv", -1)
-				return "https:" + liveLineUrl, nil
+				liveLineURL := this.proc(decodedURL)
+				liveLineURL = strings.Replace(liveLineURL, "hls", "flv", -1)
+				liveLineURL = strings.Replace(liveLineURL, "m3u8", "flv", -1)
+				return "https:" + liveLineURL, nil
 			}
 		}
 	}
@@ -99,7 +99,6 @@ func (this *huya) proc(e string) string {
 			n[ss[0]] = ss[1]
 		}
 	}
-	c = cc
 	fm, _ := url.QueryUnescape(n["fm"])
 	uu, _ := base64.StdEncoding.DecodeString(fm)
 	u := string(uu)
@@ -114,7 +113,7 @@ func (this *huya) proc(e string) string {
 }
 
 func (this *huya) setRoomOn() Option {
-	return func(tv *Tv) error {
+	return func(tv *TV) error {
 		webUserAgent := "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"
 		roomURL := fmt.Sprintf("https://www.huya.com/%s", tv.RoomID)
 		req := &util.HttpRequest{
@@ -147,12 +146,12 @@ func (this *huya) setRoomOn() Option {
 }
 
 func (this *huya) setStreamURL() Option {
-	return func(tv *Tv) (err error) {
+	return func(tv *TV) (err error) {
 		if !tv.roomOn {
 			return nil
 		}
-		tv.streamUrl, err = this.streamURL(tv.RoomID)
-		if !strings.Contains(tv.streamUrl, "https") {
+		tv.streamURL, err = this.streamURL(tv.RoomID)
+		if !strings.Contains(tv.streamURL, "https") {
 			tv.roomOn = false
 		}
 		return

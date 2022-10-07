@@ -14,12 +14,12 @@ func (b *base) Name() string {
 	return "undefined"
 }
 
-func (b *base) Snap(tv *Tv) error {
+func (b *base) Snap(tv *TV) error {
 	return fmt.Errorf("site(ID = %s) Snap Method not implemented", tv.SiteID)
 }
 
-func (b *base) Permit(roomUrl RoomUrl) (*Tv, error) {
-	u, err := url.Parse(string(roomUrl))
+func (b *base) Permit(roomURL RoomURL) (*TV, error) {
+	u, err := url.Parse(string(roomURL))
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (b *base) Permit(roomUrl RoomUrl) (*Tv, error) {
 	base := strings.TrimPrefix(u.Path, "/")
 	roomIDTmp := strings.Split(base, "/")
 	roomID := roomIDTmp[len(roomIDTmp)-1]
-	return &Tv{
+	return &TV{
 		SiteID: siteID,
 		RoomID: roomID,
 	}, nil

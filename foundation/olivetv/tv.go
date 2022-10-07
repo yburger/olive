@@ -1,3 +1,4 @@
+// Package olivetv provides support for retrieving stream urls and other streamers' details.
 package olivetv
 
 import (
@@ -15,21 +16,21 @@ const (
 )
 
 var (
-	_ ITv = (*Tv)(nil)
+	_ ITV = (*TV)(nil)
 
 	ErrNotSupported = errors.New("streamer not supported")
 	ErrSiteInvalid  = errors.New("site invalid")
 )
 
-type ITv interface {
+type ITV interface {
 	Snap() error
-	StreamUrl() (string, bool)
+	StreamURL() (string, bool)
 	RoomName() (string, bool)
 	StreamerName() (string, bool)
 	SiteName() string
 }
 
-type Tv struct {
+type TV struct {
 	SiteID string
 	RoomID string
 
@@ -38,13 +39,13 @@ type Tv struct {
 	*Info
 }
 
-func New(siteID, roomID string, opts ...Option) (*Tv, error) {
+func New(siteID, roomID string, opts ...Option) (*TV, error) {
 	_, valid := Sniff(siteID)
 	if !valid {
 		return nil, ErrNotSupported
 	}
 
-	t := &Tv{
+	t := &TV{
 		SiteID: siteID,
 		RoomID: roomID,
 	}
@@ -54,8 +55,8 @@ func New(siteID, roomID string, opts ...Option) (*Tv, error) {
 	return t, nil
 }
 
-func NewWithUrl(roomUrl string, opts ...Option) (*Tv, error) {
-	u := RoomUrl(roomUrl)
+func NewWithURL(roomURL string, opts ...Option) (*TV, error) {
+	u := RoomURL(roomURL)
 	t, err := u.Stream()
 	if err != nil {
 		err = fmt.Errorf("%+v (err msg = %s)", ErrNotSupported, err.Error())
@@ -68,10 +69,10 @@ func NewWithUrl(roomUrl string, opts ...Option) (*Tv, error) {
 	return t, nil
 }
 
-type Option func(*Tv) error
+type Option func(*TV) error
 
 func SetCookie(cookie string) Option {
-	return func(t *Tv) error {
+	return func(t *TV) error {
 		t.cookie = cookie
 		return nil
 	}
@@ -80,14 +81,14 @@ func SetCookie(cookie string) Option {
 type Info struct {
 	Timestamp int64
 
-	streamUrl    string
+	streamURL    string
 	roomOn       bool
 	roomName     string
 	streamerName string
 }
 
 // Snap takes the latest snapshot of the streamer info that could be retrieved individually.
-func (tv *Tv) Snap() error {
+func (tv *TV) Snap() error {
 	if tv == nil {
 		return errors.New("tv is nil")
 	}
@@ -98,7 +99,20 @@ func (tv *Tv) Snap() error {
 	return site.Snap(tv)
 }
 
-func (tv *Tv) SiteName() string {
+// SnapWithCookie takes the latest snapshot of the streamer info that could be retrieved individually with the cookie passed in.
+func (tv *TV) SnapWithCookie(cookie string) error {
+	if tv == nil {
+		return errors.New("tv is nil")
+	}
+	tv.cookie = cookie
+	site, ok := Sniff(tv.SiteID)
+	if !ok {
+		return fmt.Errorf("site(ID = %s) not supported", tv.SiteID)
+	}
+	return site.Snap(tv)
+}
+
+func (tv *TV) SiteName() string {
 	if tv == nil {
 		return ""
 	}
@@ -109,28 +123,28 @@ func (tv *Tv) SiteName() string {
 	return site.Name()
 }
 
-func (tv *Tv) StreamUrl() (string, bool) {
+func (tv *TV) StreamURL() (string, bool) {
 	if tv == nil || tv.Info == nil {
 		return "", false
 	}
-	return tv.streamUrl, tv.roomOn
+	return tv.streamURL, tv.roomOn
 }
 
-func (tv *Tv) RoomName() (string, bool) {
+func (tv *TV) RoomName() (string, bool) {
 	if tv == nil || tv.Info == nil {
 		return "", false
 	}
 	return tv.roomName, tv.roomName != EmptyRoomName
 }
 
-func (tv *Tv) StreamerName() (string, bool) {
+func (tv *TV) StreamerName() (string, bool) {
 	if tv == nil || tv.Info == nil {
 		return "", false
 	}
 	return tv.streamerName, tv.streamerName != EmptyStreamerName
 }
 
-func (tv *Tv) String() string {
+func (tv *TV) String() string {
 	sb := &strings.Builder{}
 	sb.WriteString("Powered by go-olive/tv\n")
 	sb.WriteString(format("SiteID", tv.SiteID))
@@ -142,8 +156,8 @@ func (tv *Tv) String() string {
 	if streamerName, ok := tv.StreamerName(); ok {
 		sb.WriteString(format("Streamer", streamerName))
 	}
-	if streamUrl, ok := tv.StreamUrl(); ok {
-		sb.WriteString(format("StreamUrl", streamUrl))
+	if streamURL, ok := tv.StreamURL(); ok {
+		sb.WriteString(format("StreamUrl", streamURL))
 	}
 	return sb.String()
 }
@@ -152,9 +166,9 @@ func format(k, v string) string {
 	return fmt.Sprintf("  %-12s%-s\n", k, v)
 }
 
-type RoomUrl string
+type RoomURL string
 
-func (this RoomUrl) SiteID() string {
+func (this RoomURL) SiteID() string {
 	u, err := url.Parse(string(this))
 	if err != nil {
 		return ""
@@ -167,7 +181,7 @@ func (this RoomUrl) SiteID() string {
 	return siteID
 }
 
-func (this RoomUrl) Stream() (*Tv, error) {
+func (this RoomURL) Stream() (*TV, error) {
 	site, ok := Sniff(this.SiteID())
 	if !ok {
 		return nil, ErrSiteInvalid

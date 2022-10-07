@@ -7,7 +7,7 @@ import (
 	"github.com/go-olive/olive/foundation/olivetv"
 )
 
-func ExampleTv() {
+func ExampleTV() {
 	t, err := olivetv.New("huya", "518512")
 	if err != nil {
 		println(err.Error())
@@ -30,8 +30,8 @@ func ExampleSetCookie() {
 	fmt.Println(t)
 }
 
-func ExampleNewWithUrl() {
-	t, err := olivetv.NewWithUrl("https://www.huya.com/518512")
+func ExampleNewWithURL() {
+	t, err := olivetv.NewWithURL("https://www.huya.com/518512")
 	if err != nil {
 		println(err.Error())
 		return
@@ -45,7 +45,7 @@ func TestExampleTv(t *testing.T) {
 	if !testing.Verbose() {
 		return
 	}
-	ExampleTv()
+	ExampleTV()
 }
 
 func TestExampleSetCookie(t *testing.T) {
@@ -59,5 +59,5 @@ func TestExampleNewWithUrl(t *testing.T) {
 	if !testing.Verbose() {
 		return
 	}
-	ExampleNewWithUrl()
+	ExampleNewWithURL()
 }

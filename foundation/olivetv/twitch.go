@@ -20,16 +20,16 @@ func (this *twitch) Name() string {
 	return "推趣"
 }
 
-func (this *twitch) Snap(tv *Tv) error {
+func (this *twitch) Snap(tv *TV) error {
 	tv.Info = &Info{
 		Timestamp: time.Now().Unix(),
 	}
 	return this.set(tv)
 }
 
-func (this *twitch) set(tv *Tv) error {
-	roomUrl := fmt.Sprintf("https://www.twitch.tv/%s", tv.RoomID)
-	content, err := util.GetURLContent(roomUrl)
+func (this *twitch) set(tv *TV) error {
+	roomURL := fmt.Sprintf("https://www.twitch.tv/%s", tv.RoomID)
+	content, err := util.GetURLContent(roomURL)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (this *twitch) set(tv *Tv) error {
 		return nil
 	}
 
-	tv.streamUrl = roomUrl
+	tv.streamURL = roomURL
 	title, err := util.Match(`"description":"([^"]+)"`, content)
 	if err != nil {
 		return nil

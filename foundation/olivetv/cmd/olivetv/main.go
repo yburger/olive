@@ -25,7 +25,7 @@ func init() {
 func main() {
 	switch {
 	case url != "":
-		t, err := olivetv.NewWithUrl(url, olivetv.SetCookie(cookie))
+		t, err := olivetv.NewWithURL(url, olivetv.SetCookie(cookie))
 		if err != nil {
 			println(err.Error())
 			return

@@ -17,14 +17,14 @@ func (this *streamlink) Name() string {
 	return "streamlink"
 }
 
-func (this *streamlink) Snap(tv *Tv) error {
+func (this *streamlink) Snap(tv *TV) error {
 	tv.Info = &Info{
 		Timestamp: time.Now().Unix(),
 	}
 	return this.set(tv)
 }
 
-func (this *streamlink) set(tv *Tv) error {
+func (this *streamlink) set(tv *TV) error {
 	cmd := exec.Command(
 		"streamlink",
 		tv.RoomID,
@@ -34,7 +34,7 @@ func (this *streamlink) set(tv *Tv) error {
 	}
 
 	tv.roomOn = true
-	tv.streamUrl = tv.RoomID
+	tv.streamURL = tv.RoomID
 
 	return nil
 }
