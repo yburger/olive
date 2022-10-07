@@ -1,1 +1,2 @@
 DELETE FROM shows;
+DELETE FROM configs;

@@ -16,3 +16,10 @@ CREATE TABLE shows (
 	
 	PRIMARY KEY (show_id)
 );
+
+CREATE TABLE configs (
+	key  TEXT,
+	value  TEXT,
+	
+	PRIMARY KEY (key)
+);
