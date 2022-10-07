@@ -156,7 +156,7 @@ func (c Core) Delete(ctx context.Context, showID string) error {
 	return nil
 }
 
-// Query retrieves a list of existing users from the database.
+// Query retrieves a list of existing shows from the database.
 func (c Core) Query(ctx context.Context, pageNumber int, rowsPerPage int) ([]Show, error) {
 	dbShows, err := c.store.Query(ctx, pageNumber, rowsPerPage)
 	if err != nil {
@@ -191,4 +191,13 @@ func (c Core) TotalNum(ctx context.Context) (int64, error) {
 	}
 
 	return num, nil
+}
+
+// QueryAllEnabled retrieves all shows which `enable` equals true from the database and saves them in cache.
+func (c *Core) QueryAllEnabled(ctx context.Context) []Show {
+	dbShows, err := c.store.QueryAllEnabled(ctx)
+	if err != nil {
+		return nil
+	}
+	return toShowSlice(dbShows)
 }

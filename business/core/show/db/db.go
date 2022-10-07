@@ -171,3 +171,26 @@ func (s Store) TotalNum(ctx context.Context) (int64, error) {
 
 	return tmp.Count, nil
 }
+
+// QueryAllEnabled retrieves all shows which `enable` equals true from the database.
+func (s Store) QueryAllEnabled(ctx context.Context) ([]Show, error) {
+	data := struct {
+		Enable bool `db:"enable"`
+	}{
+		Enable: true,
+	}
+
+	const q = `
+	SELECT
+		*
+	FROM
+		shows
+	WHERE 
+		enable = :enable`
+	var shows []Show
+	if err := database.NamedQuerySlice(ctx, s.log, s.db, q, data, &shows); err != nil {
+		return nil, fmt.Errorf("selecting shows: %w", err)
+	}
+
+	return shows, nil
+}
