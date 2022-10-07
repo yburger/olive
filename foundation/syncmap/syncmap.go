@@ -1,3 +1,4 @@
+// Package syncmap implements a generic thread safe map.
 package syncmap
 
 import "sync"
