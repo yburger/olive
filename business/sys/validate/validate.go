@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-olive/olive/engine/config"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -116,4 +117,15 @@ func CheckSplitRule(splitRule string) error {
 		Duration time.Duration
 	}
 	return jsoniter.UnmarshalFromString(splitRule, &tmp)
+}
+
+// CheckConfig validates that the Config format is valid.
+func CheckConfig(key, value string) error {
+	switch key {
+	case config.CoreConfigKey:
+		var c config.Config
+		return jsoniter.UnmarshalFromString(value, &c)
+	default:
+		return nil
+	}
 }

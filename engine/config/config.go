@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const CoreConfigKey = "core_config"
+
 type Config struct {
 	// portal
 	PortalUsername string `conf:"default:olive"`

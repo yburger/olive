@@ -20,6 +20,8 @@ CREATE TABLE shows (
 CREATE TABLE configs (
 	key  TEXT,
 	value  TEXT,
+	date_created  TIMESTAMP,
+	date_updated  TIMESTAMP,
 	
 	PRIMARY KEY (key)
 );
