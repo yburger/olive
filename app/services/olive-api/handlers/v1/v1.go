@@ -5,9 +5,11 @@ package v1
 import (
 	"net/http"
 
+	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/configgrp"
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/showgrp"
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/testgrp"
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/usrgrp"
+	"github.com/go-olive/olive/business/core/config"
 	"github.com/go-olive/olive/business/core/show"
 	"github.com/go-olive/olive/foundation/web"
 	"github.com/jmoiron/sqlx"
@@ -45,4 +47,13 @@ func Routes(app *web.App, cfg Config) {
 		Log: cfg.Log,
 	}
 	app.Handle(http.MethodPost, version, "/user/login", ugh.Login)
+
+	// Register config endpoints.
+	cgh := configgrp.Handlers{
+		Config: config.NewCore(cfg.Log, cfg.DB),
+	}
+	app.Handle(http.MethodGet, version, "/configs/:key", cgh.QueryByKey)
+	app.Handle(http.MethodPost, version, "/configs", cgh.Create)
+	app.Handle(http.MethodPut, version, "/configs/:key", cgh.Update)
+	app.Handle(http.MethodDelete, version, "/configs/:key", cgh.Delete)
 }
