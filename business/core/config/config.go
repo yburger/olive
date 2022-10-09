@@ -10,7 +10,9 @@ import (
 	"github.com/go-olive/olive/business/core/config/db"
 	"github.com/go-olive/olive/business/sys/database"
 	"github.com/go-olive/olive/business/sys/validate"
+	"github.com/go-olive/olive/engine/config"
 	"github.com/jmoiron/sqlx"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 )
 
@@ -113,4 +115,19 @@ func (c Core) QueryByKey(ctx context.Context, configKey string) (Config, error) 
 	}
 
 	return toConfig(dbConfig), nil
+}
+
+// QueryEngineConfig gets the parsed engine config from the database.
+func (c Core) QueryEngineConfig(ctx context.Context) (*config.Config, error) {
+	Config, err := c.QueryByKey(ctx, config.CoreConfigKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var engineConfig config.Config
+	if err := jsoniter.UnmarshalFromString(Config.Value, &engineConfig); err != nil {
+		return nil, err
+	}
+
+	return &engineConfig, nil
 }

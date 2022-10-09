@@ -5,23 +5,11 @@ import (
 	"unsafe"
 
 	"github.com/go-olive/olive/business/core/show/db"
+	"github.com/go-olive/olive/engine/kernel"
 )
 
 // Show represents an individual show.
-type Show struct {
-	ID           string    `json:"show_id"`
-	Enable       bool      `json:"enable"`
-	Platform     string    `json:"platform"`
-	RoomID       string    `json:"room_id"`
-	StreamerName string    `json:"streamer_name"`
-	OutTmpl      string    `json:"out_tmpl"`
-	Parser       string    `json:"parser"`
-	SaveDir      string    `json:"save_dir"`
-	PostCmds     string    `json:"post_cmds"`
-	SplitRule    string    `json:"split_rule"`
-	DateCreated  time.Time `json:"date_created"`
-	DateUpdated  time.Time `json:"date_updated"`
-}
+type Show = kernel.Show
 
 type SplitRule struct {
 	FileSize int64

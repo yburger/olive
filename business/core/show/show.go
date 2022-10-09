@@ -192,10 +192,10 @@ func (c Core) TotalNum(ctx context.Context) (int64, error) {
 }
 
 // QueryAllEnabled retrieves all shows which `enable` equals true from the database and saves them in cache.
-func (c *Core) QueryAllEnabled(ctx context.Context) []Show {
+func (c *Core) QueryAllEnabled(ctx context.Context) ([]Show, error) {
 	dbShows, err := c.store.QueryAllEnabled(ctx)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("query: %w", err)
 	}
-	return toShowSlice(dbShows)
+	return toShowSlice(dbShows), nil
 }
