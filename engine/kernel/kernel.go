@@ -53,6 +53,10 @@ func (k *Kernel) UpdateConfig(cfg config.Config) {
 	*k.cfg = cfg
 }
 
+func (k *Kernel) IsValidPortalUser(un, pw string) bool {
+	return k.cfg.PortalUsername == un && k.cfg.PortalPassword == pw
+}
+
 func (k *Kernel) Run() {
 	k.showMap.Each(func(showID string, _ Show) bool {
 		bout, err := NewBout(showID, k.showMap, k.cfg)

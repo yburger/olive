@@ -11,6 +11,7 @@ import (
 	"github.com/go-olive/olive/app/services/olive-api/handlers/v1/usrgrp"
 	"github.com/go-olive/olive/business/core/config"
 	"github.com/go-olive/olive/business/core/show"
+	"github.com/go-olive/olive/engine/kernel"
 	"github.com/go-olive/olive/foundation/web"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
@@ -20,6 +21,7 @@ import (
 type Config struct {
 	Log *zap.SugaredLogger
 	DB  *sqlx.DB
+	K   *kernel.Kernel
 }
 
 // Routes binds all the version 1 routes.
@@ -29,6 +31,7 @@ func Routes(app *web.App, cfg Config) {
 	// Register show management and authentication endpoints.
 	sgh := showgrp.Handlers{
 		Show: show.NewCore(cfg.Log, cfg.DB),
+		K:    cfg.K,
 	}
 	app.Handle(http.MethodGet, version, "/shows/:pageIndex/:pageSize", sgh.Query)
 	app.Handle(http.MethodGet, version, "/shows/:id", sgh.QueryByID)
@@ -45,12 +48,15 @@ func Routes(app *web.App, cfg Config) {
 	// Register user endpoints.
 	ugh := usrgrp.Handlers{
 		Log: cfg.Log,
+		K:   cfg.K,
 	}
 	app.Handle(http.MethodPost, version, "/user/login", ugh.Login)
+	app.Handle(http.MethodGet, version, "/user/logout", ugh.Logout)
 
 	// Register config endpoints.
 	cgh := configgrp.Handlers{
 		Config: config.NewCore(cfg.Log, cfg.DB),
+		K:      cfg.K,
 	}
 	app.Handle(http.MethodGet, version, "/configs/:key", cgh.QueryByKey)
 	app.Handle(http.MethodPost, version, "/configs", cgh.Create)

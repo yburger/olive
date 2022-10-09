@@ -14,7 +14,11 @@ import (
 
 	"github.com/ardanlabs/conf/v3"
 	"github.com/go-olive/olive/app/services/olive-api/handlers"
+	"github.com/go-olive/olive/business/core/config"
+	"github.com/go-olive/olive/business/core/show"
 	"github.com/go-olive/olive/business/sys/database"
+	"github.com/go-olive/olive/engine/kernel"
+	l "github.com/go-olive/olive/engine/log"
 	"github.com/go-olive/olive/foundation/logger"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
@@ -133,6 +137,40 @@ func run(log *zap.SugaredLogger) error {
 	}()
 
 	// =========================================================================
+	// Start Engine
+
+	log.Infow("startup", "status", "initializing olive engine")
+	l.Logger.Infof("Powered by go-olive/olive %s", build)
+
+	configCore := config.NewCore(log, db)
+	ctx1, cancel := context.WithTimeout(context.Background(), cfg.Web.ReadTimeout)
+	defer cancel()
+	engineConfig, err := configCore.QueryEngineConfig(ctx1)
+	if err != nil {
+		return fmt.Errorf("query engine config: %w", err)
+	}
+
+	showCore := show.NewCore(log, db)
+	ctx2, cancel := context.WithTimeout(context.Background(), cfg.Web.ReadTimeout)
+	defer cancel()
+	showsEnabled, err := showCore.QueryAllEnabled(ctx2)
+	if err != nil {
+		return fmt.Errorf("query shows enabled: %w", err)
+	}
+
+	k := kernel.New(l.Logger, engineConfig, showsEnabled)
+	go func() {
+		k.Run()
+	}()
+
+	// todo(lc): timing is somewhat wrong
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), cfg.Web.ShutdownTimeout)
+		defer cancel()
+		k.Shutdown(ctx)
+	}()
+
+	// =========================================================================
 	// Start Debug Service
 
 	log.Infow("startup", "status", "debug v1 router started", "host", cfg.Web.DebugHost)
@@ -166,6 +204,7 @@ func run(log *zap.SugaredLogger) error {
 		Shutdown: shutdown,
 		Log:      log,
 		DB:       db,
+		K:        k,
 	})
 
 	// Construct a server to service the requests against the mux.

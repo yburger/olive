@@ -11,12 +11,14 @@ import (
 	"github.com/go-olive/olive/business/core/show"
 	v1Web "github.com/go-olive/olive/business/web/v1"
 	"github.com/go-olive/olive/business/web/v1/mid"
+	"github.com/go-olive/olive/engine/kernel"
 	"github.com/go-olive/olive/foundation/web"
 )
 
 // Handlers manages the set of show endpoints.
 type Handlers struct {
 	Show show.Core
+	K    *kernel.Kernel
 }
 
 // Create adds a new show to the system.

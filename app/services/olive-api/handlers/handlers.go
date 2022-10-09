@@ -11,6 +11,7 @@ import (
 	"github.com/go-olive/olive/app/services/olive-api/handlers/debug/checkgrp"
 	v1 "github.com/go-olive/olive/app/services/olive-api/handlers/v1"
 	"github.com/go-olive/olive/business/web/v1/mid"
+	"github.com/go-olive/olive/engine/kernel"
 	"github.com/go-olive/olive/foundation/web"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
@@ -58,6 +59,7 @@ type APIMuxConfig struct {
 	Shutdown chan os.Signal
 	Log      *zap.SugaredLogger
 	DB       *sqlx.DB
+	K        *kernel.Kernel
 }
 
 // APIMux constructs an http.Handler with all application routes defined.
@@ -75,6 +77,7 @@ func APIMux(cfg APIMuxConfig) *web.App {
 	v1.Routes(app, v1.Config{
 		Log: cfg.Log,
 		DB:  cfg.DB,
+		K:   cfg.K,
 	})
 
 	return app
