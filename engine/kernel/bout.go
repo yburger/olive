@@ -168,7 +168,7 @@ func (b *bout) GetSaveDir() string {
 	b.Refresh()
 
 	defaultSaveDir := strings.TrimSpace(b.show.SaveDir)
-	// todo(lc)
+	// todo(lc): for mounting
 	if defaultSaveDir == "" {
 		defaultSaveDir = "/olive"
 	}

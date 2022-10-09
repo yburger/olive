@@ -12,7 +12,7 @@ import (
 var Logger *logrus.Logger
 
 func init() {
-	// todo(lc)
+	// todo(lc): for mounting
 	f, err := os.OpenFile("/olive/a.log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
 		log.Fatal(err)
