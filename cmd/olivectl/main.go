@@ -23,18 +23,19 @@ var build = "v0.5.0-src"
 // olivectl admin
 
 func main() {
-	log := l.Logger
+	var cfg config.Config
+	conf.Parse("", &cfg)
+
+	log := l.InitLogger(cfg.LogPath)
 	log.Infof("Powered by go-olive/olive %s", build)
 
-	if err := run(log); err != nil {
+	if err := run(log, cfg); err != nil {
 		log.Info(err)
 		os.Exit(1)
 	}
 }
 
-func run(log *logrus.Logger) error {
-	var cfg config.Config
-	conf.Parse("", &cfg)
+func run(log *logrus.Logger, cfg config.Config) error {
 	k := kernel.New(log, &cfg, []kernel.Show{
 		{
 			ID:           "1",

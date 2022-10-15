@@ -138,9 +138,7 @@ func run(log *zap.SugaredLogger) error {
 
 	// =========================================================================
 	// Start Engine
-
 	log.Infow("startup", "status", "initializing olive engine")
-	l.Logger.Infof("Powered by go-olive/olive %s", build)
 
 	configCore := config.NewCore(log, db)
 	ctx1, cancel := context.WithTimeout(context.Background(), cfg.Web.ReadTimeout)
@@ -149,6 +147,10 @@ func run(log *zap.SugaredLogger) error {
 	if err != nil {
 		return fmt.Errorf("query engine config: %w", err)
 	}
+	conf.Parse("", &engineConfig)
+
+	engineLogger := l.InitLogger(engineConfig.LogPath)
+	engineLogger.Infof("Powered by go-olive/olive %s", build)
 
 	showCore := show.NewCore(log, db)
 	ctx2, cancel := context.WithTimeout(context.Background(), cfg.Web.ReadTimeout)
@@ -158,7 +160,7 @@ func run(log *zap.SugaredLogger) error {
 		return fmt.Errorf("query shows enabled: %w", err)
 	}
 
-	k := kernel.New(l.Logger, engineConfig, showsEnabled)
+	k := kernel.New(engineLogger, engineConfig, showsEnabled)
 	go func() {
 		k.Run()
 	}()

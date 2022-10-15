@@ -1,9 +1,11 @@
+// Package l support a convenient logger for engine.
 package l
 
 import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
@@ -11,9 +13,12 @@ import (
 
 var Logger *logrus.Logger
 
-func init() {
-	// todo(lc): for mounting
-	f, err := os.OpenFile("/olive/a.log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
+func InitLogger(logPath string) *logrus.Logger {
+	if err := os.MkdirAll(filepath.Dir(logPath), os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
+	f, err := os.OpenFile(logPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,4 +46,5 @@ func init() {
 		},
 	))
 
+	return Logger
 }

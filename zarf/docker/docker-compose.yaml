@@ -34,4 +34,6 @@ services:
     networks:
       - default
     volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
       - ./olive:/olive

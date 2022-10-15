@@ -154,6 +154,8 @@ func (r *recorder) record() error {
 		return nil
 	}
 
+	out = filepath.Join(saveDir, out)
+
 	switch r.parser.Type() {
 	case "yt-dlp":
 		ext := filepath.Ext(out)

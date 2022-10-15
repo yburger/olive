@@ -27,12 +27,9 @@ RUN go build -ldflags "-X main.build=${BUILD_REF}"
 FROM alpine:3.16
 ARG BUILD_DATE
 ARG BUILD_REF
-RUN addgroup -g 1000 -S olive && \
-    adduser -u 1000 -h /service -G olive -S olive
-COPY --from=build_olive-api --chown=olive:olive /service/app/tooling/olive-admin/olive-admin /service/olive-admin
-COPY --from=build_olive-api --chown=olive:olive /service/app/services/olive-api/olive-api /service/olive-api
+COPY --from=build_olive-api /service/app/tooling/olive-admin/olive-admin /service/olive-admin
+COPY --from=build_olive-api /service/app/services/olive-api/olive-api /service/olive-api
 WORKDIR /service
-USER olive
 CMD ["./olive-api"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \

@@ -14,7 +14,8 @@ type Config struct {
 	PortalPassword string `conf:"default:olive"`
 
 	// core
-	SaveDir                  string `conf:"default:/"`
+	LogPath                  string `conf:"default:/olive/a.log"`
+	SaveDir                  string `conf:"default:/olive"`
 	OutTmpl                  string `conf:"default:[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date \"2006-01-02 15-04-05\"}}].flv"`
 	LogLevel                 uint32 `conf:"default:5"`
 	SnapRestSeconds          uint   `conf:"default:15"`
