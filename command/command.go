@@ -32,6 +32,8 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newVersionCmd(),
 		b.newTVCmd(),
 		b.newRunCmd(),
+		b.newServerCmd(),
+		b.newAdminCmd(),
 	)
 
 	return b

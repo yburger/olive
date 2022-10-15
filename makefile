@@ -5,11 +5,11 @@ SHELL := /bin/bash
 
 VERSION := 0.5.0
 
-all: olive
+all: olivectl
 
-olive:
+olivectl:
 	docker build \
-		-f zarf/docker/dockerfile.olive-api \
+		-f zarf/docker/dockerfile.olive \
 		-t olive-api-arm64:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
@@ -22,8 +22,8 @@ tidy:
 	go mod tidy
 	go mod vendor
 
-run:
-	go run -ldflags="-X main.build=${VERSION}" app/services/olive-api/main.go
+build:
+	go run -ldflags="-X github.com/go-olive/olive/command.build=${VERSION}" *.go
 
 # ==============================================================================
 # Running from within k8s/kind
