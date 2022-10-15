@@ -14,11 +14,11 @@ import (
 var Logger *logrus.Logger
 
 func InitLogger(logPath string) *logrus.Logger {
-	if err := os.MkdirAll(filepath.Dir(logPath), os.ModePerm); err != nil {
+	if err := os.MkdirAll(logPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
-	f, err := os.OpenFile(logPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
+	f, err := os.OpenFile(filepath.Join(logPath, "a.log"), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
 		log.Fatal(err)
 	}

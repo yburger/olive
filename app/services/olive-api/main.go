@@ -147,9 +147,8 @@ func run(log *zap.SugaredLogger) error {
 	if err != nil {
 		return fmt.Errorf("query engine config: %w", err)
 	}
-	conf.Parse("", &engineConfig)
-
-	engineLogger := l.InitLogger(engineConfig.LogPath)
+	engineConfig.CheckAndFix()
+	engineLogger := l.InitLogger(engineConfig.LogDir)
 	engineLogger.Infof("Powered by go-olive/olive %s", build)
 
 	showCore := show.NewCore(log, db)

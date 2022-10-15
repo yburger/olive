@@ -2,30 +2,60 @@
 package config
 
 import (
+	"os"
 	"os/exec"
 	"time"
+
+	"github.com/imdario/mergo"
 )
 
 const CoreConfigKey = "core_config"
 
-type Config struct {
-	// portal
-	PortalUsername string `conf:"default:olive"`
-	PortalPassword string `conf:"default:olive"`
+var DefaultConfig = Config{
+	PortalUsername: "olive",
+	PortalPassword: "olive",
 
 	// core
-	LogPath                  string `conf:"default:/olive/a.log"`
-	SaveDir                  string `conf:"default:/olive"`
-	OutTmpl                  string `conf:"default:[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date \"2006-01-02 15-04-05\"}}].flv"`
-	LogLevel                 uint32 `conf:"default:5"`
-	SnapRestSeconds          uint   `conf:"default:15"`
-	SplitRestSeconds         uint   `conf:"default:60"`
-	CommanderPoolSize        uint   `conf:"default:1"`
-	ParserMonitorRestSeconds uint   `conf:"default:300"`
+	LogDir:                   "",
+	SaveDir:                  "",
+	OutTmpl:                  `[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv`,
+	LogLevel:                 5,
+	SnapRestSeconds:          15,
+	SplitRestSeconds:         60,
+	CommanderPoolSize:        1,
+	ParserMonitorRestSeconds: 300,
 
 	// tv
-	DouyinCookie   string `conf:"default:__ac_nonce=06245c89100e7ab2dd536; __ac_signature=_02B4Z6wo00f01LjBMSAAAIDBwA.aJ.c4z1C44TWAAEx696;"`
-	KuaishouCookie string `conf:"default:did=web_d86297aa2f579589b8abc2594b0ea985"`
+	DouyinCookie:   "default:__ac_nonce=06245c89100e7ab2dd536; __ac_signature=_02B4Z6wo00f01LjBMSAAAIDBwA.aJ.c4z1C44TWAAEx696;",
+	KuaishouCookie: "did=web_d86297aa2f579589b8abc2594b0ea985",
+}
+
+type Config struct {
+	// portal
+	PortalUsername string
+	PortalPassword string
+
+	// core
+	LogDir                   string
+	SaveDir                  string
+	OutTmpl                  string
+	LogLevel                 uint32
+	SnapRestSeconds          uint
+	SplitRestSeconds         uint
+	CommanderPoolSize        uint
+	ParserMonitorRestSeconds uint
+
+	// tv
+	DouyinCookie   string
+	KuaishouCookie string
+}
+
+func (cfg *Config) CheckAndFix() {
+	wd, _ := os.Getwd()
+	DefaultConfig.LogDir = wd
+	DefaultConfig.SaveDir = wd
+
+	mergo.Merge(cfg, DefaultConfig)
 }
 
 type ID string

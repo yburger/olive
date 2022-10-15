@@ -146,7 +146,7 @@ func (tv *TV) StreamerName() (string, bool) {
 
 func (tv *TV) String() string {
 	sb := &strings.Builder{}
-	sb.WriteString("Powered by go-olive/tv\n")
+	sb.WriteString("Powered by go-olive/olive\n")
 	sb.WriteString(format("SiteID", tv.SiteID))
 	sb.WriteString(format("SiteName", tv.SiteName()))
 	sb.WriteString(format("RoomID", tv.RoomID))
