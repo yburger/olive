@@ -38,6 +38,8 @@ func (h Handlers) Create(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return fmt.Errorf("show[%+v]: %w", &s, err)
 	}
 
+	h.K.HandleShow(s)
+
 	return mid.Respond(ctx, w, s, http.StatusCreated)
 }
 
@@ -67,6 +69,9 @@ func (h Handlers) Update(ctx context.Context, w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	s, _ := h.Show.QueryByID(ctx, showID)
+	h.K.HandleShow(s)
+
 	return mid.Respond(ctx, w, nil, http.StatusOK)
 }
 
@@ -82,6 +87,8 @@ func (h Handlers) Delete(ctx context.Context, w http.ResponseWriter, r *http.Req
 			return fmt.Errorf("ID[%s]: %w", showID, err)
 		}
 	}
+
+	h.K.HandleShow(kernel.Show{ID: showID, Enable: false})
 
 	return mid.Respond(ctx, w, nil, http.StatusOK)
 }

@@ -19,6 +19,8 @@ services:
   db-init:
     image: olive-api-arm64:0.5.0
     container_name: olive-db-init
+    depends_on:
+      - db
     command:
       - /bin/sh
       - -c
@@ -29,8 +31,10 @@ services:
       - default
 
   olive:
-    image: olive-api-arm64:0.5.0
-    container_name: olive-api
+    image: olive-server-arm64:0.5.0
+    container_name: olive-server
+    depends_on:
+      - db
     ports:
       - 3000:3000
       - 4000:4000
@@ -45,8 +49,7 @@ services:
         "-s",
         "/olive"
       ]
-    depends_on:
-      - db
+
     networks:
       - default
     volumes:

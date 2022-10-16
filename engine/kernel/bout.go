@@ -168,10 +168,6 @@ func (b *bout) GetSaveDir() string {
 	b.Refresh()
 
 	defaultSaveDir := strings.TrimSpace(b.show.SaveDir)
-	// todo(lc): for mounting
-	if defaultSaveDir == "" {
-		defaultSaveDir = "/olive"
-	}
 
 	roomName, _ := b.RoomName()
 	// generate template info

@@ -45,8 +45,50 @@ func New(log *logrus.Logger, cfg *config.Config, shows []Show) *Kernel {
 	}
 }
 
-func (k *Kernel) UpdateShow(...Show) {
-	// todo(lc)
+func (k *Kernel) HandleShow(shows ...Show) {
+	// k.log.Println("============================")
+	// old, _ := k.showMap.Get(shows[0].ID)
+	// k.log.Println(jsoniter.MarshalToString(old))
+	// k.log.Println(jsoniter.MarshalToString(shows))
+	// k.log.Println("============================")
+
+	for _, show := range shows {
+		if show.Enable {
+			k.UpdateShow(show)
+		} else {
+			k.DeleteShow(show)
+		}
+	}
+}
+
+func (k *Kernel) UpdateShow(shows ...Show) {
+	for _, show := range shows {
+		if _, ok := k.showMap.Get(show.ID); ok {
+			k.showMap.Set(show.ID, show)
+		} else {
+			k.showMap.Set(show.ID, show)
+			bout, err := NewBout(show.ID, k.showMap, k.cfg)
+			if err != nil {
+				k.log.Error(err)
+				k.showMap.Delete(show.ID)
+				continue
+			}
+			bout.AddMonitor()
+		}
+	}
+}
+
+func (k *Kernel) DeleteShow(shows ...Show) {
+	for _, show := range shows {
+		bout, err := NewBout(show.ID, k.showMap, k.cfg)
+		if err != nil {
+			k.log.Error(err)
+			continue
+		}
+		bout.RemoveMonitor()
+		bout.RemoveRecorder()
+		k.showMap.Delete(show.ID)
+	}
 }
 
 func (k *Kernel) UpdateConfig(cfg config.Config) {

@@ -10,7 +10,7 @@ all: olivectl
 olivectl:
 	docker build \
 		-f zarf/docker/dockerfile.olive \
-		-t olive-api-arm64:$(VERSION) \
+		-t olive-server-arm64:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
