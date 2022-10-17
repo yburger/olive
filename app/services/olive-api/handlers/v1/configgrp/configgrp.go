@@ -65,6 +65,8 @@ func (h Handlers) Update(ctx context.Context, w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	h.K.UpdateConfig(configKey, *upd.Value)
+
 	return mid.Respond(ctx, w, nil, http.StatusOK)
 }
 

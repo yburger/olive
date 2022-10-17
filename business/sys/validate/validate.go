@@ -3,6 +3,7 @@ package validate
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
 	"reflect"
 	"regexp"
@@ -126,6 +127,6 @@ func CheckConfig(key, value string) error {
 		var c config.Config
 		return jsoniter.UnmarshalFromString(value, &c)
 	default:
-		return nil
+		return fmt.Errorf("unkown config key[%s]", key)
 	}
 }

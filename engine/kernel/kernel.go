@@ -8,6 +8,7 @@ import (
 	"github.com/go-olive/olive/engine/monitor"
 	"github.com/go-olive/olive/engine/recorder"
 	"github.com/go-olive/olive/foundation/syncmap"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -91,8 +92,14 @@ func (k *Kernel) DeleteShow(shows ...Show) {
 	}
 }
 
-func (k *Kernel) UpdateConfig(cfg config.Config) {
-	*k.cfg = cfg
+func (k *Kernel) UpdateConfig(key, value string) {
+	switch key {
+	case config.CoreConfigKey:
+		var cfg config.Config
+		if err := jsoniter.UnmarshalFromString(value, &cfg); err == nil {
+			*k.cfg = cfg
+		}
+	}
 }
 
 func (k *Kernel) IsValidPortalUser(un, pw string) bool {
