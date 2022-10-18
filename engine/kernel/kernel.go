@@ -60,6 +60,7 @@ func (k *Kernel) HandleShow(shows ...Show) {
 	// k.log.Println("============================")
 
 	for _, show := range shows {
+		show.CheckAndFix(k.cfg)
 		if show.Enable {
 			k.UpdateShow(show)
 		} else {

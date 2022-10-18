@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-olive/olive/engine/config"
+	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -24,7 +25,12 @@ type Show struct {
 	DateUpdated  time.Time `json:"date_updated"`
 }
 
-func (s *Show) checkAndFix(cfg *config.Config) {
+func (s *Show) CheckAndFix(cfg *config.Config) {
+	// generate an ID if not given
+	if s.ID == "" {
+		s.ID = uuid.NewString()
+	}
+
 	// fix parser
 	if s.Parser == "" {
 		switch s.Platform {

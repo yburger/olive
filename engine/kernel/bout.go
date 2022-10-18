@@ -70,7 +70,7 @@ func (b *bout) Refresh() {
 		b.TV = newTV
 	}
 
-	s.checkAndFix(b.cfg)
+	s.CheckAndFix(b.cfg)
 	b.show = s
 }
 

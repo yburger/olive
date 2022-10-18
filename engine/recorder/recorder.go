@@ -151,6 +151,7 @@ func (r *recorder) record() error {
 		r.log.WithFields(logrus.Fields{
 			"pf": r.bout.GetPlatform(),
 			"id": r.bout.GetRoomID(),
+			"sd": saveDir,
 		}).Errorf("mkdir failed: %s", err.Error())
 		return nil
 	}

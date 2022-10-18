@@ -8,9 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/go-olive/olive/engine/config"
 	"github.com/go-olive/olive/engine/kernel"
 	l "github.com/go-olive/olive/engine/log"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -45,22 +47,49 @@ func (b *commandsBuilder) newRunCmd() *runCmd {
 	return cc
 }
 
+type CompositeConfig struct {
+	Config config.Config
+	Shows  []kernel.Show
+}
+
+func (cfg *CompositeConfig) checkAndFix() {
+	cfg.Config.CheckAndFix()
+	for _, show := range cfg.Shows {
+		show.CheckAndFix(&cfg.Config)
+	}
+}
+
 func (c *runCmd) run() error {
 	viper.SetConfigFile(c.cfgFilepath)
-	var cfg = struct {
-		config.Config
-		Shows []kernel.Show
-	}{}
+	cfg := new(CompositeConfig)
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
-	if err := viper.Unmarshal(&cfg); err != nil {
+	if err := viper.Unmarshal(cfg); err != nil {
 		return err
 	}
-	cfg.Config.CheckAndFix()
 
-	log := l.InitLogger(cfg.LogDir)
+	cfg.checkAndFix()
+
+	log := l.InitLogger(cfg.Config.LogDir)
 	k := kernel.New(log, &cfg.Config, cfg.Shows)
+
+	// =========================================================================
+	// Watch config change
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Infof("config file[%s] is changed", e.Name)
+
+		compoCfg := new(CompositeConfig)
+		viper.Unmarshal(compoCfg)
+		compoCfg.checkAndFix()
+
+		cfgStr, _ := jsoniter.MarshalToString(compoCfg.Config)
+		k.UpdateConfig(config.CoreConfigKey, cfgStr)
+		for _, show := range compoCfg.Shows {
+			k.UpdateShow(show)
+		}
+	})
+	viper.WatchConfig()
 
 	// =========================================================================
 	// Start
