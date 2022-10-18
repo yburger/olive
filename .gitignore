@@ -26,3 +26,4 @@ archive/
 trash/
 main
 vendor/
+pgdata

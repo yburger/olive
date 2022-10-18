@@ -48,6 +48,11 @@ type Config struct {
 	// tv
 	DouyinCookie   string
 	KuaishouCookie string
+
+	// biliup
+	BiliupEnable   bool
+	CookieFilepath string
+	Threads        int64
 }
 
 func (cfg *Config) CheckAndFix() {

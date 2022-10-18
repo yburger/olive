@@ -7,6 +7,7 @@ import (
 	"github.com/go-olive/olive/engine/dispatcher"
 	"github.com/go-olive/olive/engine/monitor"
 	"github.com/go-olive/olive/engine/recorder"
+	"github.com/go-olive/olive/engine/uploader"
 	"github.com/go-olive/olive/foundation/syncmap"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
@@ -19,6 +20,7 @@ type Kernel struct {
 
 	recorderManager *recorder.Manager
 	monitorManager  *monitor.Manager
+	workerPool      *uploader.WorkerPool
 
 	done chan struct{}
 }
@@ -34,6 +36,8 @@ func New(log *logrus.Logger, cfg *config.Config, shows []Show) *Kernel {
 	dispatcher.SharedManager = dispatcher.NewManager(log)
 	dispatcher.SharedManager.Register(recorderManager, monitorManager)
 
+	workerPool := uploader.NewWorkerPool(log, cfg.CommanderPoolSize, cfg)
+
 	return &Kernel{
 		log:     log,
 		cfg:     cfg,
@@ -41,6 +45,7 @@ func New(log *logrus.Logger, cfg *config.Config, shows []Show) *Kernel {
 
 		recorderManager: recorderManager,
 		monitorManager:  monitorManager,
+		workerPool:      workerPool,
 
 		done: make(chan struct{}),
 	}
@@ -118,6 +123,11 @@ func (k *Kernel) Run() {
 
 	go k.recorderManager.Split()
 	go k.recorderManager.MonitorParserStatus()
+
+	if k.cfg.BiliupEnable {
+		k.workerPool.BiliupPrerun()
+	}
+	k.workerPool.Run()
 }
 
 func (k *Kernel) Shutdown(ctx context.Context) {
