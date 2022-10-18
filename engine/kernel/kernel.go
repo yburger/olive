@@ -37,6 +37,7 @@ func New(log *logrus.Logger, cfg *config.Config, shows []Show) *Kernel {
 	dispatcher.SharedManager.Register(recorderManager, monitorManager)
 
 	workerPool := uploader.NewWorkerPool(log, cfg.CommanderPoolSize, cfg)
+	uploader.UploaderWorkerPool = workerPool
 
 	return &Kernel{
 		log:     log,

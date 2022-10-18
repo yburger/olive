@@ -13,6 +13,7 @@ import (
 	"github.com/go-olive/olive/engine/config"
 	"github.com/go-olive/olive/engine/enum"
 	"github.com/go-olive/olive/engine/parser"
+	"github.com/go-olive/olive/engine/uploader"
 	"github.com/sirupsen/logrus"
 )
 
@@ -211,11 +212,12 @@ func (r *recorder) Done() <-chan struct{} {
 }
 
 func (r *recorder) SubmitUploadTask(filepath string, cmds []*exec.Cmd) {
-	// todo(lc)
-	// if len(cmds) > 0 && filepath != "" {
-	// 	uploader.UploaderWorkerPool.AddTask(&uploader.TaskGroup{
-	// 		Filepath: filepath,
-	// 		PostCmds: cmds,
-	// 	})
-	// }
+	if len(cmds) > 0 && filepath != "" {
+		if uploader.UploaderWorkerPool != nil {
+			uploader.UploaderWorkerPool.AddTask(&uploader.TaskGroup{
+				Filepath: filepath,
+				PostCmds: cmds,
+			})
+		}
+	}
 }

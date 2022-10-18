@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var UploaderWorkerPool *WorkerPool
+
 func (wp *WorkerPool) BiliupPrerun() {
 	files, err := filepath.Glob(filepath.Join(wp.cfg.SaveDir, "*.flv"))
 	if err != nil {
