@@ -1,0 +1,28 @@
+[Config]
+PortalUsername = 'olive'
+PortalPassword = 'olive'
+LogDir = '/Users/lucas/github/olive'
+SaveDir = '/Users/lucas/github/olive/videos'
+OutTmpl = '[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv'
+LogLevel = 5
+SnapRestSeconds = 15
+SplitRestSeconds = 60
+CommanderPoolSize = 1
+ParserMonitorRestSeconds = 10
+DouyinCookie = '__ac_nonce=06245c89100e7ab2dd536; __ac_signature=_02B4Z6wo00f01LjBMSAAAIDBwA.aJ.c4z1C44TWAAEx696;'
+KuaishouCookie = 'did=web_d86297aa2f579589b8abc2594b0ea985'
+BiliupEnable = false
+CookieFilepath = '/Users/lucas/github/olive/cookies.json'
+Threads = 6
+
+[[Shows]]
+ID = 'a'
+Enable = false
+Platform = 'bilibili'
+RoomID = '1319379'
+StreamerName = 'test1'
+OutTmpl = '[{{ .StreamerName }}][{{ .RoomName }}][{{ now | date "2006-01-02 15-04-05"}}].flv'
+Parser = 'flv'
+SaveDir = ''
+PostCmds = '[{"Path":"oliveshell","Args":["/bin/zsh","-c","echo $FILE_PATH"]},{"Path":"olivebiliup"},{"Path":"olivetrash"}]'
+SplitRule = '{"FileSize":2000000000,"Duration":"1h"}'
