@@ -86,6 +86,11 @@ func (r *recorder) Bout() config.Bout {
 }
 
 func (r *recorder) record() error {
+	if !r.bout.IsConfigValid() {
+		r.Stop()
+		return nil
+	}
+
 	newParser, exist := parser.SharedManager.Parser(r.bout.GetParser())
 	if !exist {
 		return fmt.Errorf("parser[%s] does not exist", r.bout.GetParser())

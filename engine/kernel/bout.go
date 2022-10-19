@@ -56,6 +56,11 @@ func NewBout(showID string, showMap *syncmap.RWMap[string, Show], cfg *config.Co
 	}, nil
 }
 
+func (b *bout) IsConfigValid() bool {
+	_, ok := b.showMap.Get(b.showID)
+	return ok
+}
+
 func (b *bout) Refresh() {
 	s, ok := b.showMap.Get(b.showID)
 	if !ok {

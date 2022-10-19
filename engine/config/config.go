@@ -66,6 +66,7 @@ func (cfg *Config) CheckAndFix() {
 type ID string
 
 type Bout interface {
+	IsConfigValid() bool
 	// show settings
 	GetID() ID
 	GetPlatform() string

@@ -90,6 +90,7 @@ func (k *Kernel) DeleteShow(shows ...Show) {
 	for _, show := range shows {
 		bout, err := NewBout(show.ID, k.showMap, k.cfg)
 		if err != nil {
+			k.showMap.Delete(show.ID)
 			k.log.Error(err)
 			continue
 		}

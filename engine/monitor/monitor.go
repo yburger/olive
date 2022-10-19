@@ -68,6 +68,11 @@ func (m *monitor) Stop() {
 }
 
 func (m *monitor) refresh() {
+	if !m.bout.IsConfigValid() {
+		m.Stop()
+		return
+	}
+
 	if err := m.bout.Snap(); err != nil {
 		m.log.WithFields(logrus.Fields{
 			"pf": m.bout.GetPlatform(),
