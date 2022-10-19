@@ -20,7 +20,6 @@ import (
 type Biliup struct {
 	Config Config
 
-	err    error
 	client *req.Client
 
 	cookieInfo     CookieInfo
@@ -41,12 +40,27 @@ func New(cfg Config) *Biliup {
 }
 
 func (b *Biliup) Upload() error {
-	b.err = b.newClient(b.Config.CookieFilepath)
-	b.err = b.newVideoMetadata(b.Config.VideoFilepath)
-	b.err = b.preUpload()
-	b.err = b.periUpload()
-	b.err = b.postUpload()
-	return b.err
+	err := b.newClient(b.Config.CookieFilepath)
+	if err != nil {
+		return err
+	}
+	err = b.newVideoMetadata(b.Config.VideoFilepath)
+	if err != nil {
+		return err
+	}
+	err = b.preUpload()
+	if err != nil {
+		return err
+	}
+	err = b.periUpload()
+	if err != nil {
+		return err
+	}
+	err = b.postUpload()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type CookieInfo struct {
@@ -78,10 +92,6 @@ type UploadMetadata struct {
 }
 
 func (b *Biliup) newClient(cookieFilepath string) error {
-	if b.err != nil {
-		return b.err
-	}
-
 	cookieBytes, err := os.ReadFile(cookieFilepath)
 	if err != nil {
 		return err
@@ -121,10 +131,6 @@ func (b *Biliup) newClient(cookieFilepath string) error {
 }
 
 func (b *Biliup) newVideoMetadata(videoFilepath string) error {
-	if b.err != nil {
-		return b.err
-	}
-
 	file, err := os.Open(videoFilepath)
 	if err != nil {
 		return err
@@ -155,10 +161,6 @@ func (b *Biliup) newVideoMetadata(videoFilepath string) error {
 }
 
 func (b *Biliup) preUpload() error {
-	if b.err != nil {
-		return b.err
-	}
-
 	var info PreuploadInfo
 	b.client.R().SetQueryParams(map[string]string{
 		"probe_version": "20211012",
@@ -195,7 +197,7 @@ func (b *Biliup) preUpload() error {
 	return nil
 }
 
-func (b *Biliup) periUpload() error {
+func (b *Biliup) periUpload() (err error) {
 	var upinfo UploadInfo
 	b.client.SetCommonHeader(
 		"X-Upos-Auth", b.uploadMetadata.Auth).R().
@@ -263,7 +265,7 @@ func (b *Biliup) periUpload() error {
 				PutBytes(buf)
 
 				if resp.StatusCode != 200 {
-					b.err = fmt.Errorf("视频文件[%s]分片[%d]上传失败[status code = %d]分片大小[%d]", b.videoMetadata.Filename, chunk, resp.StatusCode, size)
+					err = fmt.Errorf("视频文件[%s]分片[%d]上传失败[status code = %d]分片大小[%d]", b.videoMetadata.Filename, chunk, resp.StatusCode, size)
 				}
 				parts[chunk] = Part{
 					PartNumber: int64(chunk + 1),
@@ -365,7 +367,7 @@ func (b *Biliup) postUpload() error {
 	}
 
 	if gjson.ParseBytes([]byte(resp.Bytes())).Get("code").String() != "0" {
-		b.err = fmt.Errorf("视频文件[%s]投稿失败[%s]", b.videoMetadata.Filename, resp.String())
+		return fmt.Errorf("视频文件[%s]投稿失败[%s]", b.videoMetadata.Filename, resp.String())
 	}
 
 	return nil
