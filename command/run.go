@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,6 +15,7 @@ import (
 	l "github.com/go-olive/olive/engine/log"
 	"github.com/go-olive/olive/foundation/olivetv"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -58,6 +60,21 @@ func (cfg *CompositeConfig) checkAndFix() {
 	for _, show := range cfg.Shows {
 		show.CheckAndFix(&cfg.Config)
 	}
+}
+
+func (cfg *CompositeConfig) autosave() error {
+	bytes, err := toml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	appTomlFile, err := os.Create(fmt.Sprintf("config-%d.toml", time.Now().Unix()))
+	if err != nil {
+		return err
+	}
+	defer appTomlFile.Close()
+
+	appTomlFile.Write(bytes)
+	return nil
 }
 
 func (c *runCmd) run() error {
@@ -130,6 +147,7 @@ func (c *runCmd) runWithURL() error {
 	if err != nil {
 		return err
 	}
+	cc.autosave()
 
 	log := l.InitLogger(cc.Config.LogDir)
 	k := kernel.New(log, &cc.Config, cc.Shows)
