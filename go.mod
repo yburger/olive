@@ -9,6 +9,7 @@ require (
 	github.com/ardanlabs/darwin v1.3.0
 	github.com/coocood/freecache v1.2.2
 	github.com/dimfeld/httptreemux/v5 v5.4.0
+	github.com/fsnotify/fsnotify v1.5.4
 	github.com/funny/slab v0.0.0-20180511031532-b1fad5e5d478
 	github.com/go-dora/filenamify v0.1.1
 	github.com/go-olive/flv v0.0.0-20220608124255-065f61015270
@@ -38,7 +39,6 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheekybits/genny v1.0.0 // indirect
-	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect

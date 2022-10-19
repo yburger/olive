@@ -12,6 +12,7 @@ import (
 	"github.com/go-olive/olive/engine/config"
 	"github.com/go-olive/olive/engine/kernel"
 	l "github.com/go-olive/olive/engine/log"
+	"github.com/go-olive/olive/foundation/olivetv"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,8 +42,8 @@ func (b *commandsBuilder) newRunCmd() *runCmd {
 	cc.baseBuilderCmd = b.newBuilderCmd(cmd)
 
 	cmd.Flags().StringVarP(&cc.cfgFilepath, "filepath", "f", "", "set config.toml filepath")
-	cmd.Flags().StringVarP(&cc.roomURL, "cookie", "c", "", "room url")
-	cmd.Flags().StringVarP(&cc.cookie, "url", "u", "", "http cookie")
+	cmd.Flags().StringVarP(&cc.roomURL, "url", "u", "", "room url")
+	cmd.Flags().StringVarP(&cc.cookie, "cookie", "c", "", "http cookie")
 
 	return cc
 }
@@ -60,6 +61,9 @@ func (cfg *CompositeConfig) checkAndFix() {
 }
 
 func (c *runCmd) run() error {
+	if c.roomURL != "" {
+		return c.runWithURL()
+	}
 	viper.SetConfigFile(c.cfgFilepath)
 	cfg := new(CompositeConfig)
 	if err := viper.ReadInConfig(); err != nil {
@@ -119,4 +123,74 @@ func (c *runCmd) run() error {
 	case <-k.Done():
 		return nil
 	}
+}
+
+func (c *runCmd) runWithURL() error {
+	cc, err := newCompositeConfig(c.roomURL, c.cookie)
+	if err != nil {
+		return err
+	}
+
+	log := l.InitLogger(cc.Config.LogDir)
+	k := kernel.New(log, &cc.Config, cc.Shows)
+
+	// =========================================================================
+	// Start
+
+	go func() {
+		k.Run()
+	}()
+
+	// =========================================================================
+	// Shutdown
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+
+	sig := <-shutdown
+	log.WithField("signal", sig.String()).
+		Info("handle request")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
+	defer cancel()
+	go func(ctx context.Context) {
+		k.Shutdown(ctx)
+	}(ctx)
+
+	select {
+	case <-ctx.Done():
+		return errors.New("timeout, force quit")
+	case <-k.Done():
+		return nil
+	}
+}
+
+func newCompositeConfig(roomURL, cookie string) (*CompositeConfig, error) {
+
+	// initialize Shows
+	if cookie != "" {
+		config.DefaultConfig.DouyinCookie = cookie
+		config.DefaultConfig.KuaishouCookie = cookie
+	}
+
+	var shows []kernel.Show
+	tv, err := olivetv.NewWithURL(roomURL, olivetv.SetCookie(cookie))
+	if err != nil {
+		return nil, err
+	}
+	site, _ := olivetv.Sniff(tv.SiteID)
+	show := kernel.Show{
+		StreamerName: site.Name(),
+		Platform:     tv.SiteID,
+		RoomID:       tv.RoomID,
+	}
+	shows = []kernel.Show{show}
+
+	// initialize CompositeConfigConfig
+	cc := &CompositeConfig{
+		Config: config.DefaultConfig,
+		Shows:  shows,
+	}
+	cc.checkAndFix()
+
+	return cc, nil
 }
