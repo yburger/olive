@@ -127,7 +127,7 @@ func (k *Kernel) Run() {
 	go k.recorderManager.Split()
 	go k.recorderManager.MonitorParserStatus()
 
-	if k.cfg.BiliupEnable {
+	if k.cfg.BiliupEnable && k.cfg.CookieFilepath != "" {
 		k.workerPool.BiliupPrerun()
 	}
 	k.workerPool.Run()

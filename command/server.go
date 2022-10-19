@@ -14,6 +14,7 @@ import (
 
 	"github.com/ardanlabs/conf/v3"
 	"github.com/go-olive/olive/app/services/olive-api/handlers"
+	"github.com/go-olive/olive/app/tooling/olive-admin/commands"
 	"github.com/go-olive/olive/business/core/config"
 	"github.com/go-olive/olive/business/core/show"
 	"github.com/go-olive/olive/business/sys/database"
@@ -151,7 +152,7 @@ func (c *serverCmd) serve(log *zap.SugaredLogger, cfg cfg) (err error) {
 	// Create connectivity to the database.
 	log.Infow("startup", "status", "initializing database support", "host", cfg.DB.Host)
 
-	db, err := database.Open(database.Config{
+	dbConfig := database.Config{
 		User:         cfg.DB.User,
 		Password:     cfg.DB.Password,
 		Host:         cfg.DB.Host,
@@ -159,7 +160,8 @@ func (c *serverCmd) serve(log *zap.SugaredLogger, cfg cfg) (err error) {
 		MaxIdleConns: cfg.DB.MaxIdleConns,
 		MaxOpenConns: cfg.DB.MaxOpenConns,
 		DisableTLS:   cfg.DB.DisableTLS,
-	})
+	}
+	db, err := database.Open(dbConfig)
 	if err != nil {
 		return fmt.Errorf("connecting to db: %w", err)
 	}
@@ -167,6 +169,17 @@ func (c *serverCmd) serve(log *zap.SugaredLogger, cfg cfg) (err error) {
 		log.Infow("shutdown", "status", "stopping database support", "host", cfg.DB.Host)
 		db.Close()
 	}()
+
+	// =========================================================================
+	// Database Admin Operation
+
+	if err := commands.Migrate(dbConfig); err != nil {
+		return fmt.Errorf("migrating database: %w", err)
+	}
+
+	if err := commands.Seed(dbConfig); err != nil {
+		return fmt.Errorf("seeding database: %w", err)
+	}
 
 	// =========================================================================
 	// Start Engine

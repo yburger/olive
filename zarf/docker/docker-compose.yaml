@@ -16,20 +16,6 @@ services:
     networks:
       - default
 
-  db-init:
-    image: olive-api-arm64:0.5.0
-    container_name: olive-db-init
-    depends_on:
-      - db
-    command:
-      - /bin/sh
-      - -c
-      - |
-        ./olive admin --db-host=olive-db:5432 migrate
-        ./olive admin --db-host=olive-db:5432 seed
-    networks:
-      - default
-
   olive:
     image: olive-server-arm64:0.5.0
     container_name: olive-server
