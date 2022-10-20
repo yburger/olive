@@ -49,7 +49,7 @@ type Web struct {
 
 type DB struct {
 	User         string
-	Password     string
+	Password     string `conf:"mask"`
 	Host         string
 	Name         string
 	MaxIdleConns int

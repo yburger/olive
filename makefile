@@ -10,7 +10,7 @@ all: olivectl
 olivectl:
 	docker build \
 		-f zarf/docker/dockerfile.olive \
-		-t olive-server-arm64:$(VERSION) \
+		-t olive:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
@@ -63,6 +63,7 @@ kind-down:
 kind-load:
 	cd zarf/k8s/kind/olive-pod; kustomize edit set image olive-api-image=olive-api-arm64:$(VERSION)
 	kind load docker-image olive-api-arm64:$(VERSION) --name $(KIND_CLUSTER)
+	# kind load docker-image postgres:14-alpine --name $(KIND_CLUSTER)
 
 kind-apply:
 	kustomize build zarf/k8s/kind/database-pod | kubectl apply -f -

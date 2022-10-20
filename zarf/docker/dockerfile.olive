@@ -25,7 +25,8 @@ ARG BUILD_REF
 COPY --from=build_olive /ctl/olive /ctl/olive
 COPY --from=build_olive /ctl/zarf/streamlink/init.sh /ctl/init.sh
 WORKDIR /ctl
-RUN apk --no-cache add yt-dlp zsh \
+RUN apk update \
+	apk --no-cache add yt-dlp zsh \
 	&& sh init.sh
 CMD ["./olive"]
 
