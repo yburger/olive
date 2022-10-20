@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,6 +30,9 @@ type runCmd struct {
 	cookie      string
 
 	*baseBuilderCmd
+
+	logDir  string
+	saveDir string
 }
 
 func (b *commandsBuilder) newRunCmd() *runCmd {
@@ -44,8 +49,12 @@ func (b *commandsBuilder) newRunCmd() *runCmd {
 	cc.baseBuilderCmd = b.newBuilderCmd(cmd)
 
 	cmd.Flags().StringVarP(&cc.cfgFilepath, "filepath", "f", "", "set config.toml filepath")
+
 	cmd.Flags().StringVarP(&cc.roomURL, "url", "u", "", "room url")
 	cmd.Flags().StringVarP(&cc.cookie, "cookie", "c", "", "http cookie")
+
+	cmd.Flags().StringVarP(&cc.logDir, "logdir", "l", "", "log file directory")
+	cmd.Flags().StringVarP(&cc.saveDir, "savedir", "s", "", "video file directory")
 
 	return cc
 }
@@ -147,6 +156,15 @@ func (c *runCmd) runWithURL() error {
 	if err != nil {
 		return err
 	}
+
+	if c.logDir != "" {
+		cc.Config.LogDir = c.logDir
+	}
+	if c.saveDir != "" {
+		cc.Config.SaveDir = c.saveDir
+	}
+
+	cc.checkAndFix()
 	cc.autosave()
 
 	log := l.InitLogger(cc.Config.LogDir)
@@ -190,25 +208,51 @@ func newCompositeConfig(roomURL, cookie string) (*CompositeConfig, error) {
 		config.DefaultConfig.KuaishouCookie = cookie
 	}
 
-	var shows []kernel.Show
-	tv, err := olivetv.NewWithURL(roomURL, olivetv.SetCookie(cookie))
+	show, err := newShow(roomURL, cookie)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid args: %w", err)
 	}
-	site, _ := olivetv.Sniff(tv.SiteID)
-	show := kernel.Show{
-		StreamerName: site.Name(),
-		Platform:     tv.SiteID,
-		RoomID:       tv.RoomID,
-	}
-	shows = []kernel.Show{show}
+	shows := []kernel.Show{show}
 
 	// initialize CompositeConfigConfig
 	cc := &CompositeConfig{
 		Config: config.DefaultConfig,
 		Shows:  shows,
 	}
-	cc.checkAndFix()
 
 	return cc, nil
+}
+
+func newShow(roomURL, cookie string) (kernel.Show, error) {
+	// use olivetv
+	tv, err := olivetv.NewWithURL(roomURL, olivetv.SetCookie(cookie))
+	if err == nil {
+		site, _ := olivetv.Sniff(tv.SiteID)
+		show := kernel.Show{
+			StreamerName: site.Name(),
+			Platform:     tv.SiteID,
+			RoomID:       tv.RoomID,
+		}
+		return show, nil
+	}
+
+	// use streamlink
+	u, err := url.Parse(roomURL)
+	if err != nil {
+		return kernel.Show{}, err
+	}
+	streamerName := u.Hostname()
+	hostParts := strings.Split(streamerName, ".")
+	if len(hostParts) == 2 {
+		streamerName = hostParts[0]
+	} else if len(hostParts) > 2 {
+		streamerName = hostParts[1]
+	}
+	show := kernel.Show{
+		StreamerName: streamerName,
+		Platform:     "streamlink",
+		RoomID:       roomURL,
+		OutTmpl:      "[{{ .StreamerName }}][{{ now | date \"2006-01-02 15-04-05\"}}]",
+	}
+	return show, nil
 }
