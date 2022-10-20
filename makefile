@@ -16,11 +16,11 @@ olivectl:
 		.
 
 push:
-	docker buildx create \
-		--name mybuilder \
-		--driver docker-container \
-		--bootstrap \
-		--use
+	# docker buildx create \
+	# 	--name mybuilder \
+	# 	--driver docker-container \
+	# 	--bootstrap \
+	# 	--use
 	docker buildx build \
 		--platform linux/amd64,linux/arm64 \
 		-f zarf/docker/dockerfile.olive \

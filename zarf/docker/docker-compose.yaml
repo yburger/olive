@@ -17,7 +17,7 @@ services:
       - default
 
   olive:
-    image: luxcgo/olive:0.5.0
+    image: luxcgo/olive:latest
     container_name: olive-server
     depends_on:
       - db
@@ -31,9 +31,9 @@ services:
         "--db-host",
         "olive-db:5432",
         "-l",
-        "/olive",
+        "/downloads",
         "-s",
-        "/olive",
+        "/downloads"
       ]
 
     networks:
@@ -41,4 +41,4 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-      - ./olive:/olive
+      - ./downloads:/downloads

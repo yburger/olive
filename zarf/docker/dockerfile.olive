@@ -20,14 +20,17 @@ RUN go build -ldflags "-X github.com/go-olive/olive/command.build=${BUILD_REF}"
 
 # Run the Go Binary in Alpine.
 FROM alpine:3.16
+ENV OUTPUT_DIR="/downloads"
 ARG BUILD_DATE
 ARG BUILD_REF
 COPY --from=build_olive /ctl/olive /ctl/olive
 COPY --from=build_olive /ctl/zarf/streamlink/init.sh /ctl/init.sh
 WORKDIR /ctl
-RUN apk update \
-	apk --no-cache add yt-dlp zsh \
-	&& sh init.sh
+RUN mkdir -p $OUTPUT_DIR && \
+	apk update && \
+	apk --no-cache add yt-dlp zsh && \
+	sh init.sh
+VOLUME $OUTPUT_DIR
 CMD ["./olive"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
