@@ -23,12 +23,15 @@ FROM alpine:3.16
 ARG BUILD_DATE
 ARG BUILD_REF
 COPY --from=build_olive /ctl/olive /ctl/olive
+COPY --from=build_olive /ctl/zarf/streamlink/init.sh /ctl/init.sh
 WORKDIR /ctl
+RUN apk --no-cache add yt-dlp zsh \
+	&& sh init.sh
 CMD ["./olive"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
-    org.opencontainers.image.title="olive" \
-    org.opencontainers.image.authors="luxcgo <luxcgo@gmail.com>" \
-    org.opencontainers.image.source="https://github.com/go-olive/olive" \
-    org.opencontainers.image.revision="${BUILD_REF}" \
-    org.opencontainers.image.vendor="go-olive"
+	org.opencontainers.image.title="olive" \
+	org.opencontainers.image.authors="luxcgo <luxcgo@gmail.com>" \
+	org.opencontainers.image.source="https://github.com/go-olive/olive" \
+	org.opencontainers.image.revision="${BUILD_REF}" \
+	org.opencontainers.image.vendor="go-olive"
