@@ -15,6 +15,22 @@ olivectl:
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
 
+push:
+	docker buildx create \
+		--name mybuilder \
+		--driver docker-container \
+		--bootstrap \
+		--use
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-f zarf/docker/dockerfile.olive \
+		-t luxcgo/olive:latest \
+		-t luxcgo/olive:$(VERSION) \
+		--build-arg BUILD_REF=$(VERSION) \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		--push \
+		.
+
 # ==============================================================================
 # Modules support
 

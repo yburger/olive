@@ -17,7 +17,7 @@ services:
       - default
 
   olive:
-    image: olive-server-arm64:0.5.0
+    image: luxcgo/olive:0.5.0
     container_name: olive-server
     depends_on:
       - db
@@ -33,7 +33,7 @@ services:
         "-l",
         "/olive",
         "-s",
-        "/olive"
+        "/olive",
       ]
 
     networks:
