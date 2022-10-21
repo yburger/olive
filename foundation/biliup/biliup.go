@@ -243,7 +243,7 @@ func (b *Biliup) periUpload() (err error) {
 				concurrentGoroutines <- struct{}{}
 				// log.Println("doing chunk", chunk)
 
-				resp, _ := b.client.R().SetHeaders(map[string]string{
+				_, err := b.client.R().SetHeaders(map[string]string{
 					"Content-Type":   "application/octet-stream",
 					"Content-Length": strconv.Itoa(size),
 				}).SetQueryParams(map[string]string{
@@ -264,8 +264,8 @@ func (b *Biliup) periUpload() (err error) {
 
 				PutBytes(buf)
 
-				if resp.StatusCode != 200 {
-					err = fmt.Errorf("视频文件[%s]分片[%d]上传失败[status code = %d]分片大小[%d]", b.videoMetadata.Filename, chunk, resp.StatusCode, size)
+				if err != nil {
+					err = fmt.Errorf("视频文件[%s]分片[%d]上传失败[err msg = %s]分片大小[%d]", b.videoMetadata.Filename, chunk, err.Error(), size)
 				}
 				parts[chunk] = Part{
 					PartNumber: int64(chunk + 1),
