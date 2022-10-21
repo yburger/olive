@@ -10,6 +10,7 @@ all: olivectl
 olivectl:
 	docker build \
 		-f zarf/docker/dockerfile.olive \
+		-t olive:latest \
 		-t olive:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \

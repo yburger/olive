@@ -6,15 +6,14 @@ services:
     container_name: olive-db
     restart: always
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-
     networks:
-      - default
+      - olive-network
 
   olive:
     image: luxcgo/olive:latest
@@ -22,8 +21,8 @@ services:
     depends_on:
       - db
     ports:
-      - 3000:3000
-      - 4000:4000
+      - 127.0.0.1:3000:3000
+      - 127.0.0.1:4000:4000
     command:
       [
         "./olive",
@@ -33,12 +32,24 @@ services:
         "-l",
         "/downloads",
         "-s",
-        "/downloads"
+        "/downloads",
       ]
-
-    networks:
-      - default
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
       - ./downloads:/downloads
+    networks:
+      - olive-network
+
+  portal:
+    image: luxcgo/olive-portal:latest
+    container_name: olive-portal
+    depends_on:
+      - olive
+    ports:
+      - "8080:8080"
+    networks:
+      - olive-network
+
+networks:
+  olive-network:
