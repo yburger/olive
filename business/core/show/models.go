@@ -1,7 +1,6 @@
 package show
 
 import (
-	"time"
 	"unsafe"
 
 	"github.com/go-olive/olive/business/core/show/db"
@@ -10,11 +9,6 @@ import (
 
 // Show represents an individual show.
 type Show = kernel.Show
-
-type SplitRule struct {
-	FileSize int64
-	Duration time.Duration
-}
 
 // NewShow contains information needed to create a new Show.
 type NewShow struct {

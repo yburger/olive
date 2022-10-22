@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/go-olive/olive/engine/config"
 	"github.com/go-playground/locales/en"
@@ -115,7 +114,7 @@ func CheckSplitRule(splitRule string) error {
 	}
 	var tmp struct {
 		FileSize int64
-		Duration time.Duration
+		Duration string
 	}
 	return jsoniter.UnmarshalFromString(splitRule, &tmp)
 }
