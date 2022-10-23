@@ -24,6 +24,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/lib/pq v1.10.7
 	github.com/lthibault/jitterbug/v2 v2.2.2
+	github.com/mdp/qrterminal/v3 v3.0.0
 	github.com/pelletier/go-toml/v2 v2.0.5
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
@@ -34,6 +35,7 @@ require (
 	go.uber.org/zap v1.23.0
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	rsc.io/qr v0.2.0
 )
 
 require (

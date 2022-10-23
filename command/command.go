@@ -34,6 +34,7 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		b.newRunCmd(),
 		b.newServerCmd(),
 		b.newAdminCmd(),
+		b.newBiliupCmd(),
 	)
 
 	return b

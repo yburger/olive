@@ -40,8 +40,8 @@ func (b *commandsBuilder) newRunCmd() *runCmd {
 
 	cmd := &cobra.Command{
 		Use:   "run",
-		Short: "Start the engine.",
-		Long:  `Start the engine.`,
+		Short: "Start the olive engine.",
+		Long:  `Start the olive engine.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cc.run()
 		},

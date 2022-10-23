@@ -14,6 +14,7 @@ KuaishouCookie = 'did=web_d86297aa2f579589b8abc2594b0ea985'
 BiliupEnable = false
 CookieFilepath = '/Users/lucas/github/olive/cookies.json'
 Threads = 6
+MaxBytesPerSecond = 2097152
 
 [[Shows]]
 ID = 'a'
