@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  db:
+  olive-db:
     image: postgres:14-alpine
     container_name: olive-db
     restart: always
@@ -15,11 +15,11 @@ services:
     networks:
       - olive-network
 
-  olive:
+  olive-server:
     image: luxcgo/olive:latest
     container_name: olive-server
     depends_on:
-      - db
+      - olive-db
     ports:
       - 127.0.0.1:3000:3000
       - 127.0.0.1:4000:4000
@@ -32,20 +32,21 @@ services:
         "-l",
         "/downloads",
         "-s",
-        "/downloads",
+        "/downloads"
       ]
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
       - ./downloads:/downloads
+      - ./config:/config
     networks:
       - olive-network
 
-  portal:
+  olive-portal:
     image: luxcgo/olive-portal:latest
     container_name: olive-portal
     depends_on:
-      - olive
+      - olive-server
     ports:
       - "8080:8080"
     networks:

@@ -50,9 +50,10 @@ type Config struct {
 	KuaishouCookie string
 
 	// biliup
-	BiliupEnable   bool
-	CookieFilepath string
-	Threads        int64
+	BiliupEnable      bool
+	CookieFilepath    string
+	Threads           int64
+	MaxBytesPerSecond float64
 }
 
 func (cfg *Config) CheckAndFix() {

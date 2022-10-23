@@ -55,9 +55,10 @@ func OliveBiliup(t *Task) error {
 	}).Info("upload start")
 
 	biliupConfig := biliup.Config{
-		CookieFilepath: t.cfg.CookieFilepath,
-		VideoFilepath:  t.Filepath,
-		Threads:        t.cfg.Threads,
+		CookieFilepath:    t.cfg.CookieFilepath,
+		VideoFilepath:     t.Filepath,
+		Threads:           t.cfg.Threads,
+		MaxBytesPerSecond: t.cfg.MaxBytesPerSecond,
 	}
 	err := biliup.New(biliupConfig).Upload()
 	if err == nil {

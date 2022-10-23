@@ -33,6 +33,7 @@ require (
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 )
 
 require (
