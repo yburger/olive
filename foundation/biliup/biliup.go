@@ -2,6 +2,7 @@
 package biliup
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"github.com/imroc/req/v3"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
+	"golang.org/x/time/rate"
 )
 
 type Biliup struct {
@@ -28,9 +30,10 @@ type Biliup struct {
 }
 
 type Config struct {
-	CookieFilepath string
-	VideoFilepath  string
-	Threads        int64
+	CookieFilepath    string
+	VideoFilepath     string
+	Threads           int64
+	MaxBytesPerSecond float64
 }
 
 func New(cfg Config) *Biliup {
@@ -230,9 +233,20 @@ func (b *Biliup) periUpload() (err error) {
 	concurrentGoroutines := make(chan struct{}, b.Config.Threads)
 
 	var wg sync.WaitGroup
+
+	// init a rate limiter
+	const oneMB = 1048576
+	var limiter *rate.Limiter
+	if b.Config.MaxBytesPerSecond == 0 {
+		limiter = rate.NewLimiter(rate.Inf, 100*oneMB)
+	} else {
+		limiter = rate.NewLimiter(rate.Limit(b.Config.MaxBytesPerSecond), 100*oneMB)
+	}
+
 	for {
 		buf := GetBytes(int(b.uploadMetadata.ChunkSize))
 		size, err := file.Read(buf)
+		limiter.WaitN(context.Background(), size)
 		if err != nil && err != io.EOF {
 			break
 		}
@@ -243,7 +257,7 @@ func (b *Biliup) periUpload() (err error) {
 				concurrentGoroutines <- struct{}{}
 				// log.Println("doing chunk", chunk)
 
-				_, err := b.client.R().SetHeaders(map[string]string{
+				_, respErr := b.client.R().SetHeaders(map[string]string{
 					"Content-Type":   "application/octet-stream",
 					"Content-Length": strconv.Itoa(size),
 				}).SetQueryParams(map[string]string{
@@ -264,7 +278,7 @@ func (b *Biliup) periUpload() (err error) {
 
 				PutBytes(buf)
 
-				if err != nil {
+				if respErr != nil {
 					err = fmt.Errorf("视频文件[%s]分片[%d]上传失败[err msg = %s]分片大小[%d]", b.videoMetadata.Filename, chunk, err.Error(), size)
 				}
 				parts[chunk] = Part{
