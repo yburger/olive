@@ -7,12 +7,12 @@ before:
 builds:
   - binary: olive
 
-    main: ./src/cmd/olive
+    main: ./
     env:
       - CGO_ENABLED=0
       
     ldflags:
-      - -s -w -X github.com/go-olive/olive/src/config.AppVersion={{.Tag}}
+      - -s -w -X github.com/go-olive/olive/command.build={{.Tag}}
 
     goos:
       - linux
@@ -54,7 +54,7 @@ archives:
     files:
       - LICENSE
       - README.md
-      - src/tmpl/config.toml
+      - zarf/tmpl/config.toml
 
 checksum:
   name_template: "{{ .ProjectName }}_v{{ .Version }}_checksums.txt"
