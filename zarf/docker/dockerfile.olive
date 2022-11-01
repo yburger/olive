@@ -28,8 +28,9 @@ COPY --from=build_olive /ctl/zarf/streamlink/init.sh /ctl/init.sh
 WORKDIR /ctl
 RUN mkdir -p $OUTPUT_DIR && \
 	apk update && \
-	apk --no-cache add yt-dlp zsh && \
+	apk --no-cache add yt-dlp zsh tzdata && \
 	sh init.sh
+ENV TZ=Asia/Shanghai
 VOLUME $OUTPUT_DIR
 CMD ["./olive"]
 
