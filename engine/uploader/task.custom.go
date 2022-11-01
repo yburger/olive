@@ -32,10 +32,12 @@ func OliveTrash(t *Task) error {
 }
 
 func OliveArchive(t *Task) error {
-	if err := os.MkdirAll("archive", os.ModePerm); err != nil {
+	dir := filepath.Dir(t.Filepath)
+	dest := filepath.Join(dir, "archive")
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
 		return err
 	}
-	return t.move("archive")
+	return t.move(dest)
 }
 
 func (t *Task) move(dest string) error {
