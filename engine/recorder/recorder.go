@@ -169,7 +169,7 @@ func (r *recorder) record() error {
 		out = out[0:len(out)-len(ext)] + ".mp4"
 	default:
 		ext := filepath.Ext(out)
-		out = out[0:len(out)-len(ext)] + ".flv"
+		out = out[0:len(out)-len(ext)] + ".mp4"
 	}
 
 	r.startTime = time.Now()
